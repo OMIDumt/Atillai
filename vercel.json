@@ -1,8 +1,5 @@
 {
   "outputDirectory": ".output/public",
-  "buildCommand": "npm install --legacy-peer-deps && npm run build",
-  "framework": "vite",
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "buildCommand": "",
+  "framework": "vite"
 }
