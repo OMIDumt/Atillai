@@ -16,7 +16,7 @@ import { Route as KidsTestRouteImport } from './routes/kids-test'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AppsRouteImport } from './routes/apps'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as IndexRouteImport } from '../index'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as AppsIndexRouteImport } from './routes/apps.index'
@@ -378,3 +378,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
