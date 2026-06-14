@@ -1,0 +1,1 @@
+import{j as t}from"./index-TJApp1JS.js";const r=()=>t.jsxs("section",{className:"pt-40 pb-24 text-center",children:[t.jsx("h1",{className:"text-2xl font-black",children:"خطا"}),t.jsx("p",{className:"mt-4 text-muted-foreground",children:"یک خطای غیرمنتظره رخ داد. لطفاً دوباره تلاش کنید."})]});export{r as errorComponent};
