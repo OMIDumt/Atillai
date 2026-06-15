@@ -2,8 +2,12 @@ import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { T as TELEGRAM_URL } from "./telegram-B1WC_9Ai.mjs";
 import { W as Wrench, ah as Compass, ai as Heart, aj as Calculator, ak as Palette, J as Sparkles, al as CircleCheck, B as Brain, ad as Rocket, z as BookOpen, am as Music, an as ArrowDown, V as Send, M as MessageCircle, R as Phone } from "../_libs/lucide-react.mjs";
 import { m as motion } from "../_libs/framer-motion.mjs";
+
 import "../_libs/motion-dom.mjs";
 import "../_libs/motion-utils.mjs";
+import "../_libs/unenv.mjs";
+
+
 const CONTACT_PHONE_INTL = "989105557133";
 const CONTACT_PHONE_DISPLAY = "0910 555 7133";
 const WHATSAPP_URL = `https://wa.me/${CONTACT_PHONE_INTL}`;

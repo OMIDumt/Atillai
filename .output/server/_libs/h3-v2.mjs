@@ -1,3 +1,4 @@
+import "./unenv.mjs";
 import { N as NullProtoObj } from "./rou3.mjs";
 import { b as FastURL, c as FastResponse } from "./srvx.mjs";
 function decodePathname(pathname) {

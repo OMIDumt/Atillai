@@ -1,17 +1,23 @@
 {
-  "date": "2026-06-14T18:56:13.529Z",
-  "preset": "bun",
+  "date": "2026-06-15T09:36:06.533Z",
+  "preset": "cloudflare-module",
   "framework": {
     "name": "nitro",
-    "version": "3.0.260429-beta"
+    "version": "3.0.260603-beta"
   },
   "versions": {
-    "nitro": "3.0.260429-beta"
+    "nitro": "3.0.260603-beta"
   },
   "serverEntry": "server/index.mjs",
   "publicDir": "public",
   "commands": {
-    "preview": "bun run ./server/index.mjs"
+    "preview": "npx wrangler --cwd ./ dev",
+    "deploy": "npx wrangler --cwd ./ deploy"
   },
-  "config": {}
+  "config": {
+    "cloudflare": {
+      "deployConfig": true,
+      "nodeCompat": true
+    }
+  }
 }

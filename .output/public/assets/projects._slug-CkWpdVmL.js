@@ -1,1 +1,0 @@
-import{j as t,L as e}from"./index-TJApp1JS.js";const o=()=>t.jsxs("section",{className:"pt-40 pb-24 text-center",children:[t.jsx("h1",{className:"text-3xl font-black",children:"پروژه یافت نشد"}),t.jsx(e,{to:"/projects",className:"mt-6 inline-block text-primary",children:"بازگشت به نمونه کارها"})]});export{o as notFoundComponent};

@@ -169,27 +169,87 @@ function requireReactDom() {
   return reactDom.exports;
 }
 requireReactDom();
-var server_bun = {};
-var reactDomServer_bun_production = {};
-var hasRequiredReactDomServer_bun_production;
-function requireReactDomServer_bun_production() {
-  if (hasRequiredReactDomServer_bun_production) return reactDomServer_bun_production;
-  hasRequiredReactDomServer_bun_production = 1;
+var server_edge = {};
+var reactDomServer_edge_production = {};
+var hasRequiredReactDomServer_edge_production;
+function requireReactDomServer_edge_production() {
+  if (hasRequiredReactDomServer_edge_production) return reactDomServer_edge_production;
+  hasRequiredReactDomServer_edge_production = 1;
   var React = requireReact(), ReactDOM = requireReactDom(), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_SCOPE_TYPE = /* @__PURE__ */ Symbol.for("react.scope"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_LEGACY_HIDDEN_TYPE = /* @__PURE__ */ Symbol.for("react.legacy_hidden"), REACT_MEMO_CACHE_SENTINEL = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel"), REACT_VIEW_TRANSITION_TYPE = /* @__PURE__ */ Symbol.for("react.view_transition"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
   function getIteratorFn(maybeIterable) {
     if (null === maybeIterable || "object" !== typeof maybeIterable) return null;
     maybeIterable = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable["@@iterator"];
     return "function" === typeof maybeIterable ? maybeIterable : null;
   }
-  var isArrayImpl = Array.isArray, scheduleMicrotask = queueMicrotask;
-  function flushBuffered(destination) {
-    "function" === typeof destination.flush && destination.flush();
+  var isArrayImpl = Array.isArray;
+  function murmurhash3_32_gc(key, seed) {
+    var remainder = key.length & 3;
+    var bytes = key.length - remainder;
+    var h1 = seed;
+    for (seed = 0; seed < bytes; ) {
+      var k1 = key.charCodeAt(seed) & 255 | (key.charCodeAt(++seed) & 255) << 8 | (key.charCodeAt(++seed) & 255) << 16 | (key.charCodeAt(++seed) & 255) << 24;
+      ++seed;
+      k1 = 3432918353 * (k1 & 65535) + ((3432918353 * (k1 >>> 16) & 65535) << 16) & 4294967295;
+      k1 = k1 << 15 | k1 >>> 17;
+      k1 = 461845907 * (k1 & 65535) + ((461845907 * (k1 >>> 16) & 65535) << 16) & 4294967295;
+      h1 ^= k1;
+      h1 = h1 << 13 | h1 >>> 19;
+      h1 = 5 * (h1 & 65535) + ((5 * (h1 >>> 16) & 65535) << 16) & 4294967295;
+      h1 = (h1 & 65535) + 27492 + (((h1 >>> 16) + 58964 & 65535) << 16);
+    }
+    k1 = 0;
+    switch (remainder) {
+      case 3:
+        k1 ^= (key.charCodeAt(seed + 2) & 255) << 16;
+      case 2:
+        k1 ^= (key.charCodeAt(seed + 1) & 255) << 8;
+      case 1:
+        k1 ^= key.charCodeAt(seed) & 255, k1 = 3432918353 * (k1 & 65535) + ((3432918353 * (k1 >>> 16) & 65535) << 16) & 4294967295, k1 = k1 << 15 | k1 >>> 17, h1 ^= 461845907 * (k1 & 65535) + ((461845907 * (k1 >>> 16) & 65535) << 16) & 4294967295;
+    }
+    h1 ^= key.length;
+    h1 ^= h1 >>> 16;
+    h1 = 2246822507 * (h1 & 65535) + ((2246822507 * (h1 >>> 16) & 65535) << 16) & 4294967295;
+    h1 ^= h1 >>> 13;
+    h1 = 3266489909 * (h1 & 65535) + ((3266489909 * (h1 >>> 16) & 65535) << 16) & 4294967295;
+    return (h1 ^ h1 >>> 16) >>> 0;
   }
+  function handleErrorInNextTick(error) {
+    setTimeout(function() {
+      throw error;
+    });
+  }
+  var LocalPromise = Promise, scheduleMicrotask = "function" === typeof queueMicrotask ? queueMicrotask : function(callback) {
+    LocalPromise.resolve(null).then(callback).catch(handleErrorInNextTick);
+  }, currentView = null, writtenBytes = 0;
   function writeChunk(destination, chunk) {
-    0 !== chunk.length && destination.write(chunk);
+    if (0 !== chunk.byteLength)
+      if (2048 < chunk.byteLength)
+        0 < writtenBytes && (destination.enqueue(
+          new Uint8Array(currentView.buffer, 0, writtenBytes)
+        ), currentView = new Uint8Array(2048), writtenBytes = 0), destination.enqueue(chunk);
+      else {
+        var allowableBytes = currentView.length - writtenBytes;
+        allowableBytes < chunk.byteLength && (0 === allowableBytes ? destination.enqueue(currentView) : (currentView.set(chunk.subarray(0, allowableBytes), writtenBytes), destination.enqueue(currentView), chunk = chunk.subarray(allowableBytes)), currentView = new Uint8Array(2048), writtenBytes = 0);
+        currentView.set(chunk, writtenBytes);
+        writtenBytes += chunk.byteLength;
+      }
+  }
+  function writeChunkAndReturn(destination, chunk) {
+    writeChunk(destination, chunk);
+    return true;
+  }
+  function completeWriting(destination) {
+    currentView && 0 < writtenBytes && (destination.enqueue(new Uint8Array(currentView.buffer, 0, writtenBytes)), currentView = null, writtenBytes = 0);
+  }
+  var textEncoder = new TextEncoder();
+  function stringToChunk(content) {
+    return textEncoder.encode(content);
+  }
+  function stringToPrecomputedChunk(content) {
+    return textEncoder.encode(content);
   }
   function byteLengthOfChunk(chunk) {
-    return Buffer.byteLength(chunk, "utf8");
+    return chunk.byteLength;
   }
   function closeWithError(destination, error) {
     "function" === typeof destination.error ? destination.error(error) : destination.close();
@@ -346,22 +406,35 @@ function requireReactDomServer_bun_production() {
     S: preinitStyle,
     M: preinitModuleScript
   };
-  var PRELOAD_NO_CREDS = [], currentlyFlushingRenderState = null, scriptRegex = /(<\/|<)(s)(cript)/gi;
+  var PRELOAD_NO_CREDS = [], currentlyFlushingRenderState = null;
+  stringToPrecomputedChunk('"></template>');
+  var startInlineScript = stringToPrecomputedChunk("<script"), endInlineScript = stringToPrecomputedChunk("<\/script>"), startScriptSrc = stringToPrecomputedChunk('<script src="'), startModuleSrc = stringToPrecomputedChunk('<script type="module" src="'), scriptNonce = stringToPrecomputedChunk(' nonce="'), scriptIntegirty = stringToPrecomputedChunk(' integrity="'), scriptCrossOrigin = stringToPrecomputedChunk(' crossorigin="'), endAsyncScript = stringToPrecomputedChunk(' async=""><\/script>'), startInlineStyle = stringToPrecomputedChunk("<style"), scriptRegex = /(<\/|<)(s)(cript)/gi;
   function scriptReplacer(match, prefix2, s, suffix2) {
     return "" + prefix2 + ("s" === s ? "\\u0073" : "\\u0053") + suffix2;
   }
+  var importMapScriptStart = stringToPrecomputedChunk(
+    '<script type="importmap">'
+  ), importMapScriptEnd = stringToPrecomputedChunk("<\/script>");
   function createRenderState(resumableState, nonce, externalRuntimeConfig, importMap, onHeaders, maxHeadersLength) {
     externalRuntimeConfig = "string" === typeof nonce ? nonce : nonce && nonce.script;
-    var inlineScriptWithNonce = void 0 === externalRuntimeConfig ? "<script" : '<script nonce="' + escapeTextForBrowser(externalRuntimeConfig) + '"', nonceStyle = "string" === typeof nonce ? void 0 : nonce && nonce.style, inlineStyleWithNonce = void 0 === nonceStyle ? "<style" : '<style nonce="' + escapeTextForBrowser(nonceStyle) + '"', idPrefix = resumableState.idPrefix, bootstrapChunks = [], bootstrapScriptContent = resumableState.bootstrapScriptContent, bootstrapScripts = resumableState.bootstrapScripts, bootstrapModules = resumableState.bootstrapModules;
+    var inlineScriptWithNonce = void 0 === externalRuntimeConfig ? startInlineScript : stringToPrecomputedChunk(
+      '<script nonce="' + escapeTextForBrowser(externalRuntimeConfig) + '"'
+    ), nonceStyle = "string" === typeof nonce ? void 0 : nonce && nonce.style, inlineStyleWithNonce = void 0 === nonceStyle ? startInlineStyle : stringToPrecomputedChunk(
+      '<style nonce="' + escapeTextForBrowser(nonceStyle) + '"'
+    ), idPrefix = resumableState.idPrefix, bootstrapChunks = [], bootstrapScriptContent = resumableState.bootstrapScriptContent, bootstrapScripts = resumableState.bootstrapScripts, bootstrapModules = resumableState.bootstrapModules;
     void 0 !== bootstrapScriptContent && (bootstrapChunks.push(inlineScriptWithNonce), pushCompletedShellIdAttribute(bootstrapChunks, resumableState), bootstrapChunks.push(
-      ">",
-      ("" + bootstrapScriptContent).replace(scriptRegex, scriptReplacer),
-      "<\/script>"
+      endOfStartTag,
+      stringToChunk(
+        ("" + bootstrapScriptContent).replace(scriptRegex, scriptReplacer)
+      ),
+      endInlineScript
     ));
     bootstrapScriptContent = [];
-    void 0 !== importMap && (bootstrapScriptContent.push('<script type="importmap">'), bootstrapScriptContent.push(
-      ("" + JSON.stringify(importMap)).replace(scriptRegex, scriptReplacer)
-    ), bootstrapScriptContent.push("<\/script>"));
+    void 0 !== importMap && (bootstrapScriptContent.push(importMapScriptStart), bootstrapScriptContent.push(
+      stringToChunk(
+        ("" + JSON.stringify(importMap)).replace(scriptRegex, scriptReplacer)
+      )
+    ), bootstrapScriptContent.push(importMapScriptEnd));
     importMap = onHeaders ? {
       preconnects: "",
       fontPreloads: "",
@@ -369,9 +442,9 @@ function requireReactDomServer_bun_production() {
       remainingCapacity: 2 + ("number" === typeof maxHeadersLength ? maxHeadersLength : 2e3)
     } : null;
     onHeaders = {
-      placeholderPrefix: idPrefix + "P:",
-      segmentPrefix: idPrefix + "S:",
-      boundaryPrefix: idPrefix + "B:",
+      placeholderPrefix: stringToPrecomputedChunk(idPrefix + "P:"),
+      segmentPrefix: stringToPrecomputedChunk(idPrefix + "S:"),
+      boundaryPrefix: stringToPrecomputedChunk(idPrefix + "B:"),
       startInlineScript: inlineScriptWithNonce,
       startInlineStyle: inlineStyleWithNonce,
       preamble: createPreambleState(),
@@ -415,22 +488,22 @@ function requireReactDomServer_bun_production() {
           fetchPriority: "low",
           nonce
         }, "string" === typeof idPrefix ? inlineStyleWithNonce.href = maxHeadersLength = idPrefix : (inlineStyleWithNonce.href = maxHeadersLength = idPrefix.src, inlineStyleWithNonce.integrity = nonceStyle = "string" === typeof idPrefix.integrity ? idPrefix.integrity : void 0, inlineStyleWithNonce.crossOrigin = inlineScriptWithNonce = "string" === typeof idPrefix || null == idPrefix.crossOrigin ? void 0 : "use-credentials" === idPrefix.crossOrigin ? "use-credentials" : ""), idPrefix = resumableState, bootstrapScriptContent = maxHeadersLength, idPrefix.scriptResources[bootstrapScriptContent] = null, idPrefix.moduleScriptResources[bootstrapScriptContent] = null, idPrefix = [], pushLinkImpl(idPrefix, inlineStyleWithNonce), onHeaders.bootstrapScripts.add(idPrefix), bootstrapChunks.push(
-          '<script src="',
-          escapeTextForBrowser(maxHeadersLength),
-          '"'
+          startScriptSrc,
+          stringToChunk(escapeTextForBrowser(maxHeadersLength)),
+          attributeEnd
         ), externalRuntimeConfig && bootstrapChunks.push(
-          ' nonce="',
-          escapeTextForBrowser(externalRuntimeConfig),
-          '"'
+          scriptNonce,
+          stringToChunk(escapeTextForBrowser(externalRuntimeConfig)),
+          attributeEnd
         ), "string" === typeof nonceStyle && bootstrapChunks.push(
-          ' integrity="',
-          escapeTextForBrowser(nonceStyle),
-          '"'
+          scriptIntegirty,
+          stringToChunk(escapeTextForBrowser(nonceStyle)),
+          attributeEnd
         ), "string" === typeof inlineScriptWithNonce && bootstrapChunks.push(
-          ' crossorigin="',
-          escapeTextForBrowser(inlineScriptWithNonce),
-          '"'
-        ), pushCompletedShellIdAttribute(bootstrapChunks, resumableState), bootstrapChunks.push(' async=""><\/script>');
+          scriptCrossOrigin,
+          stringToChunk(escapeTextForBrowser(inlineScriptWithNonce)),
+          attributeEnd
+        ), pushCompletedShellIdAttribute(bootstrapChunks, resumableState), bootstrapChunks.push(endAsyncScript);
     if (void 0 !== bootstrapModules)
       for (nonce = 0; nonce < bootstrapModules.length; nonce++)
         nonceStyle = bootstrapModules[nonce], maxHeadersLength = importMap = void 0, inlineScriptWithNonce = {
@@ -438,22 +511,22 @@ function requireReactDomServer_bun_production() {
           fetchPriority: "low",
           nonce: externalRuntimeConfig
         }, "string" === typeof nonceStyle ? inlineScriptWithNonce.href = bootstrapScripts = nonceStyle : (inlineScriptWithNonce.href = bootstrapScripts = nonceStyle.src, inlineScriptWithNonce.integrity = maxHeadersLength = "string" === typeof nonceStyle.integrity ? nonceStyle.integrity : void 0, inlineScriptWithNonce.crossOrigin = importMap = "string" === typeof nonceStyle || null == nonceStyle.crossOrigin ? void 0 : "use-credentials" === nonceStyle.crossOrigin ? "use-credentials" : ""), nonceStyle = resumableState, inlineStyleWithNonce = bootstrapScripts, nonceStyle.scriptResources[inlineStyleWithNonce] = null, nonceStyle.moduleScriptResources[inlineStyleWithNonce] = null, nonceStyle = [], pushLinkImpl(nonceStyle, inlineScriptWithNonce), onHeaders.bootstrapScripts.add(nonceStyle), bootstrapChunks.push(
-          '<script type="module" src="',
-          escapeTextForBrowser(bootstrapScripts),
-          '"'
+          startModuleSrc,
+          stringToChunk(escapeTextForBrowser(bootstrapScripts)),
+          attributeEnd
         ), externalRuntimeConfig && bootstrapChunks.push(
-          ' nonce="',
-          escapeTextForBrowser(externalRuntimeConfig),
-          '"'
+          scriptNonce,
+          stringToChunk(escapeTextForBrowser(externalRuntimeConfig)),
+          attributeEnd
         ), "string" === typeof maxHeadersLength && bootstrapChunks.push(
-          ' integrity="',
-          escapeTextForBrowser(maxHeadersLength),
-          '"'
+          scriptIntegirty,
+          stringToChunk(escapeTextForBrowser(maxHeadersLength)),
+          attributeEnd
         ), "string" === typeof importMap && bootstrapChunks.push(
-          ' crossorigin="',
-          escapeTextForBrowser(importMap),
-          '"'
-        ), pushCompletedShellIdAttribute(bootstrapChunks, resumableState), bootstrapChunks.push(' async=""><\/script>');
+          scriptCrossOrigin,
+          stringToChunk(escapeTextForBrowser(importMap)),
+          attributeEnd
+        ), pushCompletedShellIdAttribute(bootstrapChunks, resumableState), bootstrapChunks.push(endAsyncScript);
     return onHeaders;
   }
   function createResumableState(identifierPrefix, externalRuntimeConfig, bootstrapScriptContent, bootstrapScripts, bootstrapModules) {
@@ -572,16 +645,14 @@ function requireReactDomServer_bun_production() {
       resumableState
     );
   }
+  var textSeparator = stringToPrecomputedChunk("<!-- -->");
   function pushTextInstance(target, text, renderState, textEmbedded) {
     if ("" === text) return textEmbedded;
-    textEmbedded && target.push("<!-- -->");
-    target.push(escapeTextForBrowser(text));
+    textEmbedded && target.push(textSeparator);
+    target.push(stringToChunk(escapeTextForBrowser(text)));
     return true;
   }
-  function pushSegmentFinale(target, renderState, lastPushedText, textEmbedded) {
-    lastPushedText && textEmbedded && target.push("<!-- -->");
-  }
-  var styleNameCache = /* @__PURE__ */ new Map();
+  var styleNameCache = /* @__PURE__ */ new Map(), styleAttributeStart = stringToPrecomputedChunk(' style="'), styleAssign = stringToPrecomputedChunk(":"), styleSeparator = stringToPrecomputedChunk(";");
   function pushStyleAttribute(target, style) {
     if ("object" !== typeof style)
       throw Error(
@@ -593,32 +664,52 @@ function requireReactDomServer_bun_production() {
         var styleValue = style[styleName];
         if (null != styleValue && "boolean" !== typeof styleValue && "" !== styleValue) {
           if (0 === styleName.indexOf("--")) {
-            var nameChunk = escapeTextForBrowser(styleName);
-            styleValue = escapeTextForBrowser(("" + styleValue).trim());
+            var nameChunk = stringToChunk(escapeTextForBrowser(styleName));
+            styleValue = stringToChunk(
+              escapeTextForBrowser(("" + styleValue).trim())
+            );
           } else
-            nameChunk = styleNameCache.get(styleName), void 0 === nameChunk && (nameChunk = escapeTextForBrowser(
-              styleName.replace(uppercasePattern, "-$1").toLowerCase().replace(msPattern, "-ms-")
-            ), styleNameCache.set(styleName, nameChunk)), styleValue = "number" === typeof styleValue ? 0 === styleValue || unitlessNumbers.has(styleName) ? "" + styleValue : styleValue + "px" : escapeTextForBrowser(("" + styleValue).trim());
-          isFirst ? (isFirst = false, target.push(' style="', nameChunk, ":", styleValue)) : target.push(";", nameChunk, ":", styleValue);
+            nameChunk = styleNameCache.get(styleName), void 0 === nameChunk && (nameChunk = stringToPrecomputedChunk(
+              escapeTextForBrowser(
+                styleName.replace(uppercasePattern, "-$1").toLowerCase().replace(msPattern, "-ms-")
+              )
+            ), styleNameCache.set(styleName, nameChunk)), styleValue = "number" === typeof styleValue ? 0 === styleValue || unitlessNumbers.has(styleName) ? stringToChunk("" + styleValue) : stringToChunk(styleValue + "px") : stringToChunk(
+              escapeTextForBrowser(("" + styleValue).trim())
+            );
+          isFirst ? (isFirst = false, target.push(
+            styleAttributeStart,
+            nameChunk,
+            styleAssign,
+            styleValue
+          )) : target.push(styleSeparator, nameChunk, styleAssign, styleValue);
         }
       }
-    isFirst || target.push('"');
+    isFirst || target.push(attributeEnd);
   }
+  var attributeSeparator = stringToPrecomputedChunk(" "), attributeAssign = stringToPrecomputedChunk('="'), attributeEnd = stringToPrecomputedChunk('"'), attributeEmptyString = stringToPrecomputedChunk('=""');
   function pushBooleanAttribute(target, name, value) {
-    value && "function" !== typeof value && "symbol" !== typeof value && target.push(" ", name, '=""');
+    value && "function" !== typeof value && "symbol" !== typeof value && target.push(attributeSeparator, stringToChunk(name), attributeEmptyString);
   }
   function pushStringAttribute(target, name, value) {
-    "function" !== typeof value && "symbol" !== typeof value && "boolean" !== typeof value && target.push(" ", name, '="', escapeTextForBrowser(value), '"');
+    "function" !== typeof value && "symbol" !== typeof value && "boolean" !== typeof value && target.push(
+      attributeSeparator,
+      stringToChunk(name),
+      attributeAssign,
+      stringToChunk(escapeTextForBrowser(value)),
+      attributeEnd
+    );
   }
-  var actionJavaScriptURL = escapeTextForBrowser(
-    "javascript:throw new Error('React form unexpectedly submitted.')"
-  );
+  var actionJavaScriptURL = stringToPrecomputedChunk(
+    escapeTextForBrowser(
+      "javascript:throw new Error('React form unexpectedly submitted.')"
+    )
+  ), startHiddenInputChunk = stringToPrecomputedChunk('<input type="hidden"');
   function pushAdditionalFormField(value, key) {
-    this.push('<input type="hidden"');
+    this.push(startHiddenInputChunk);
     validateAdditionalFormField(value);
     pushStringAttribute(this, "name", key);
     pushStringAttribute(this, "value", value);
-    this.push("/>");
+    this.push(endOfStartTagSelfClosing);
   }
   function validateAdditionalFormField(value) {
     if ("string" !== typeof value)
@@ -648,7 +739,13 @@ function requireReactDomServer_bun_production() {
     var formData = null;
     if ("function" === typeof formAction) {
       var customFields = getCustomFormFields(resumableState, formAction);
-      null !== customFields ? (name = customFields.name, formAction = customFields.action || "", formEncType = customFields.encType, formMethod = customFields.method, formTarget = customFields.target, formData = customFields.data) : (target.push(" ", "formAction", '="', actionJavaScriptURL, '"'), formTarget = formMethod = formEncType = formAction = name = null, injectFormReplayingRuntime(resumableState, renderState));
+      null !== customFields ? (name = customFields.name, formAction = customFields.action || "", formEncType = customFields.encType, formMethod = customFields.method, formTarget = customFields.target, formData = customFields.data) : (target.push(
+        attributeSeparator,
+        stringToChunk("formAction"),
+        attributeAssign,
+        actionJavaScriptURL,
+        attributeEnd
+      ), formTarget = formMethod = formEncType = formAction = name = null, injectFormReplayingRuntime(resumableState, renderState));
     }
     null != name && pushAttribute(target, "name", name);
     null != formAction && pushAttribute(target, "formAction", formAction);
@@ -683,7 +780,13 @@ function requireReactDomServer_bun_production() {
         if (null == value || "function" === typeof value || "symbol" === typeof value || "boolean" === typeof value)
           break;
         value = sanitizeURL("" + value);
-        target.push(" ", name, '="', escapeTextForBrowser(value), '"');
+        target.push(
+          attributeSeparator,
+          stringToChunk(name),
+          attributeAssign,
+          stringToChunk(escapeTextForBrowser(value)),
+          attributeEnd
+        );
         break;
       case "defaultValue":
       case "defaultChecked":
@@ -701,7 +804,13 @@ function requireReactDomServer_bun_production() {
         if ("function" === typeof value || "symbol" === typeof value || "boolean" === typeof value)
           break;
         value = sanitizeURL("" + value);
-        target.push(" ", "xlink:href", '="', escapeTextForBrowser(value), '"');
+        target.push(
+          attributeSeparator,
+          stringToChunk("xlink:href"),
+          attributeAssign,
+          stringToChunk(escapeTextForBrowser(value)),
+          attributeEnd
+        );
         break;
       case "contentEditable":
       case "spellCheck":
@@ -711,7 +820,13 @@ function requireReactDomServer_bun_production() {
       case "externalResourcesRequired":
       case "focusable":
       case "preserveAlpha":
-        "function" !== typeof value && "symbol" !== typeof value && target.push(" ", name, '="', escapeTextForBrowser(value), '"');
+        "function" !== typeof value && "symbol" !== typeof value && target.push(
+          attributeSeparator,
+          stringToChunk(name),
+          attributeAssign,
+          stringToChunk(escapeTextForBrowser(value)),
+          attributeEnd
+        );
         break;
       case "inert":
       case "allowFullScreen":
@@ -736,21 +851,47 @@ function requireReactDomServer_bun_production() {
       case "scoped":
       case "seamless":
       case "itemScope":
-        value && "function" !== typeof value && "symbol" !== typeof value && target.push(" ", name, '=""');
+        value && "function" !== typeof value && "symbol" !== typeof value && target.push(
+          attributeSeparator,
+          stringToChunk(name),
+          attributeEmptyString
+        );
         break;
       case "capture":
       case "download":
-        true === value ? target.push(" ", name, '=""') : false !== value && "function" !== typeof value && "symbol" !== typeof value && target.push(" ", name, '="', escapeTextForBrowser(value), '"');
+        true === value ? target.push(
+          attributeSeparator,
+          stringToChunk(name),
+          attributeEmptyString
+        ) : false !== value && "function" !== typeof value && "symbol" !== typeof value && target.push(
+          attributeSeparator,
+          stringToChunk(name),
+          attributeAssign,
+          stringToChunk(escapeTextForBrowser(value)),
+          attributeEnd
+        );
         break;
       case "cols":
       case "rows":
       case "size":
       case "span":
-        "function" !== typeof value && "symbol" !== typeof value && !isNaN(value) && 1 <= value && target.push(" ", name, '="', escapeTextForBrowser(value), '"');
+        "function" !== typeof value && "symbol" !== typeof value && !isNaN(value) && 1 <= value && target.push(
+          attributeSeparator,
+          stringToChunk(name),
+          attributeAssign,
+          stringToChunk(escapeTextForBrowser(value)),
+          attributeEnd
+        );
         break;
       case "rowSpan":
       case "start":
-        "function" === typeof value || "symbol" === typeof value || isNaN(value) || target.push(" ", name, '="', escapeTextForBrowser(value), '"');
+        "function" === typeof value || "symbol" === typeof value || isNaN(value) || target.push(
+          attributeSeparator,
+          stringToChunk(name),
+          attributeAssign,
+          stringToChunk(escapeTextForBrowser(value)),
+          attributeEnd
+        );
         break;
       case "xlinkActuate":
         pushStringAttribute(target, "xlink:actuate", value);
@@ -790,11 +931,18 @@ function requireReactDomServer_bun_production() {
                 var prefix$8 = name.toLowerCase().slice(0, 5);
                 if ("data-" !== prefix$8 && "aria-" !== prefix$8) return;
             }
-            target.push(" ", name, '="', escapeTextForBrowser(value), '"');
+            target.push(
+              attributeSeparator,
+              stringToChunk(name),
+              attributeAssign,
+              stringToChunk(escapeTextForBrowser(value)),
+              attributeEnd
+            );
           }
         }
     }
   }
+  var endOfStartTag = stringToPrecomputedChunk(">"), endOfStartTagSelfClosing = stringToPrecomputedChunk("/>");
   function pushInnerHTML(target, innerHTML, children) {
     if (null != innerHTML) {
       if (null != children)
@@ -806,7 +954,7 @@ function requireReactDomServer_bun_production() {
           "`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://react.dev/link/dangerously-set-inner-html for more information."
         );
       innerHTML = innerHTML.__html;
-      null !== innerHTML && void 0 !== innerHTML && target.push("" + innerHTML);
+      null !== innerHTML && void 0 !== innerHTML && target.push(stringToChunk("" + innerHTML));
     }
   }
   function flattenOptionChildren(children) {
@@ -816,22 +964,26 @@ function requireReactDomServer_bun_production() {
     });
     return content;
   }
+  var selectedMarkerAttribute = stringToPrecomputedChunk(' selected=""'), formReplayingRuntimeScript = stringToPrecomputedChunk(
+    `addEventListener("submit",function(a){if(!a.defaultPrevented){var c=a.target,d=a.submitter,e=c.action,b=d;if(d){var f=d.getAttribute("formAction");null!=f&&(e=f,b=null)}"javascript:throw new Error('React form unexpectedly submitted.')"===e&&(a.preventDefault(),b?(a=document.createElement("input"),a.name=b.name,a.value=b.value,b.parentNode.insertBefore(a,b),b=new FormData(c),a.parentNode.removeChild(a)):b=new FormData(c),a=c.ownerDocument||c,(a.$$reactFormReplay=a.$$reactFormReplay||[]).push(c,d,b))}});`
+  );
   function injectFormReplayingRuntime(resumableState, renderState) {
     if (0 === (resumableState.instructions & 16)) {
       resumableState.instructions |= 16;
       var preamble = renderState.preamble, bootstrapChunks = renderState.bootstrapChunks;
       (preamble.htmlChunks || preamble.headChunks) && 0 === bootstrapChunks.length ? (bootstrapChunks.push(renderState.startInlineScript), pushCompletedShellIdAttribute(bootstrapChunks, resumableState), bootstrapChunks.push(
-        ">",
-        `addEventListener("submit",function(a){if(!a.defaultPrevented){var c=a.target,d=a.submitter,e=c.action,b=d;if(d){var f=d.getAttribute("formAction");null!=f&&(e=f,b=null)}"javascript:throw new Error('React form unexpectedly submitted.')"===e&&(a.preventDefault(),b?(a=document.createElement("input"),a.name=b.name,a.value=b.value,b.parentNode.insertBefore(a,b),b=new FormData(c),a.parentNode.removeChild(a)):b=new FormData(c),a=c.ownerDocument||c,(a.$$reactFormReplay=a.$$reactFormReplay||[]).push(c,d,b))}});`,
-        "<\/script>"
+        endOfStartTag,
+        formReplayingRuntimeScript,
+        endInlineScript
       )) : bootstrapChunks.unshift(
         renderState.startInlineScript,
-        ">",
-        `addEventListener("submit",function(a){if(!a.defaultPrevented){var c=a.target,d=a.submitter,e=c.action,b=d;if(d){var f=d.getAttribute("formAction");null!=f&&(e=f,b=null)}"javascript:throw new Error('React form unexpectedly submitted.')"===e&&(a.preventDefault(),b?(a=document.createElement("input"),a.name=b.name,a.value=b.value,b.parentNode.insertBefore(a,b),b=new FormData(c),a.parentNode.removeChild(a)):b=new FormData(c),a=c.ownerDocument||c,(a.$$reactFormReplay=a.$$reactFormReplay||[]).push(c,d,b))}});`,
-        "<\/script>"
+        endOfStartTag,
+        formReplayingRuntimeScript,
+        endInlineScript
       );
     }
   }
+  var formStateMarkerIsMatching = stringToPrecomputedChunk("<!--F!-->"), formStateMarkerIsNotMatching = stringToPrecomputedChunk("<!--F-->");
   function pushLinkImpl(target, props) {
     target.push(startChunkForTag("link"));
     for (var propKey in props)
@@ -848,7 +1000,7 @@ function requireReactDomServer_bun_production() {
               pushAttribute(target, propKey, propValue);
           }
       }
-    target.push("/>");
+    target.push(endOfStartTagSelfClosing);
     return null;
   }
   var styleRegex = /(<\/|<)(s)(tyle)/gi;
@@ -871,7 +1023,7 @@ function requireReactDomServer_bun_production() {
               pushAttribute(target, propKey, propValue);
           }
       }
-    target.push("/>");
+    target.push(endOfStartTagSelfClosing);
     return null;
   }
   function pushTitleImpl(target, props) {
@@ -892,13 +1044,14 @@ function requireReactDomServer_bun_production() {
               pushAttribute(target, propKey, propValue);
           }
       }
-    target.push(">");
+    target.push(endOfStartTag);
     props = Array.isArray(children) ? 2 > children.length ? children[0] : null : children;
-    "function" !== typeof props && "symbol" !== typeof props && null !== props && void 0 !== props && target.push(escapeTextForBrowser("" + props));
+    "function" !== typeof props && "symbol" !== typeof props && null !== props && void 0 !== props && target.push(stringToChunk(escapeTextForBrowser("" + props)));
     pushInnerHTML(target, innerHTML, children);
     target.push(endChunkForTag("title"));
     return null;
   }
+  var headPreambleContributionChunk = stringToPrecomputedChunk("<!--head-->"), bodyPreambleContributionChunk = stringToPrecomputedChunk("<!--body-->"), htmlPreambleContributionChunk = stringToPrecomputedChunk("<!--html-->");
   function pushScriptImpl(target, props) {
     target.push(startChunkForTag("script"));
     var children = null, innerHTML = null, propKey;
@@ -917,9 +1070,11 @@ function requireReactDomServer_bun_production() {
               pushAttribute(target, propKey, propValue);
           }
       }
-    target.push(">");
+    target.push(endOfStartTag);
     pushInnerHTML(target, innerHTML, children);
-    "string" === typeof children && target.push(("" + children).replace(scriptRegex, scriptReplacer));
+    "string" === typeof children && target.push(
+      stringToChunk(("" + children).replace(scriptRegex, scriptReplacer))
+    );
     target.push(endChunkForTag("script"));
     return null;
   }
@@ -941,7 +1096,7 @@ function requireReactDomServer_bun_production() {
               pushAttribute(target, propKey, propValue);
           }
       }
-    target.push(">");
+    target.push(endOfStartTag);
     pushInnerHTML(target, innerHTML, tag);
     return tag;
   }
@@ -963,20 +1118,21 @@ function requireReactDomServer_bun_production() {
               pushAttribute(target, propKey, propValue);
           }
       }
-    target.push(">");
+    target.push(endOfStartTag);
     pushInnerHTML(target, innerHTML, tag);
-    return "string" === typeof tag ? (target.push(escapeTextForBrowser(tag)), null) : tag;
+    return "string" === typeof tag ? (target.push(stringToChunk(escapeTextForBrowser(tag))), null) : tag;
   }
-  var VALID_TAG_REGEX = /^[a-zA-Z][a-zA-Z:_\.\-\d]*$/, validatedTagCache = /* @__PURE__ */ new Map();
+  var leadingNewline = stringToPrecomputedChunk("\n"), VALID_TAG_REGEX = /^[a-zA-Z][a-zA-Z:_\.\-\d]*$/, validatedTagCache = /* @__PURE__ */ new Map();
   function startChunkForTag(tag) {
     var tagStartChunk = validatedTagCache.get(tag);
     if (void 0 === tagStartChunk) {
       if (!VALID_TAG_REGEX.test(tag)) throw Error("Invalid tag: " + tag);
-      tagStartChunk = "<" + tag;
+      tagStartChunk = stringToPrecomputedChunk("<" + tag);
       validatedTagCache.set(tag, tagStartChunk);
     }
     return tagStartChunk;
   }
+  var doctypeChunk = stringToPrecomputedChunk("<!DOCTYPE html>");
   function pushStartInstance(target$jscomp$0, type, props, resumableState, renderState, preambleState, hoistableState, formatContext, textEmbedded) {
     switch (type) {
       case "div":
@@ -1005,10 +1161,10 @@ function requireReactDomServer_bun_production() {
                   pushAttribute(target$jscomp$0, propKey, propValue);
               }
           }
-        target$jscomp$0.push(">");
+        target$jscomp$0.push(endOfStartTag);
         pushInnerHTML(target$jscomp$0, innerHTML, children);
         if ("string" === typeof children) {
-          target$jscomp$0.push(escapeTextForBrowser(children));
+          target$jscomp$0.push(stringToChunk(escapeTextForBrowser(children)));
           var JSCompiler_inline_result = null;
         } else JSCompiler_inline_result = children;
         return JSCompiler_inline_result;
@@ -1041,7 +1197,7 @@ function requireReactDomServer_bun_production() {
                   );
               }
           }
-        target$jscomp$0.push(">");
+        target$jscomp$0.push(endOfStartTag);
         pushInnerHTML(target$jscomp$0, innerHTML$jscomp$0, children$jscomp$0);
         return children$jscomp$0;
       case "option":
@@ -1077,14 +1233,14 @@ function requireReactDomServer_bun_production() {
           if (isArrayImpl(selectedValue))
             for (var i = 0; i < selectedValue.length; i++) {
               if ("" + selectedValue[i] === stringValue) {
-                target$jscomp$0.push(' selected=""');
+                target$jscomp$0.push(selectedMarkerAttribute);
                 break;
               }
             }
           else
-            "" + selectedValue === stringValue && target$jscomp$0.push(' selected=""');
-        } else selected && target$jscomp$0.push(' selected=""');
-        target$jscomp$0.push(">");
+            "" + selectedValue === stringValue && target$jscomp$0.push(selectedMarkerAttribute);
+        } else selected && target$jscomp$0.push(selectedMarkerAttribute);
+        target$jscomp$0.push(endOfStartTag);
         pushInnerHTML(target$jscomp$0, innerHTML$jscomp$1, children$jscomp$1);
         return children$jscomp$1;
       case "textarea":
@@ -1117,7 +1273,7 @@ function requireReactDomServer_bun_production() {
               }
           }
         null === value$jscomp$0 && null !== defaultValue && (value$jscomp$0 = defaultValue);
-        target$jscomp$0.push(">");
+        target$jscomp$0.push(endOfStartTag);
         if (null != children$jscomp$2) {
           if (null != value$jscomp$0)
             throw Error(
@@ -1130,8 +1286,10 @@ function requireReactDomServer_bun_production() {
           }
           value$jscomp$0 = "" + children$jscomp$2;
         }
-        "string" === typeof value$jscomp$0 && "\n" === value$jscomp$0[0] && target$jscomp$0.push("\n");
-        null !== value$jscomp$0 && target$jscomp$0.push(escapeTextForBrowser("" + value$jscomp$0));
+        "string" === typeof value$jscomp$0 && "\n" === value$jscomp$0[0] && target$jscomp$0.push(leadingNewline);
+        null !== value$jscomp$0 && target$jscomp$0.push(
+          stringToChunk(escapeTextForBrowser("" + value$jscomp$0))
+        );
         return null;
       case "input":
         target$jscomp$0.push(startChunkForTag("input"));
@@ -1193,7 +1351,7 @@ function requireReactDomServer_bun_production() {
         );
         null !== checked ? pushBooleanAttribute(target$jscomp$0, "checked", checked) : null !== defaultChecked && pushBooleanAttribute(target$jscomp$0, "checked", defaultChecked);
         null !== value$jscomp$1 ? pushAttribute(target$jscomp$0, "value", value$jscomp$1) : null !== defaultValue$jscomp$0 && pushAttribute(target$jscomp$0, "value", defaultValue$jscomp$0);
-        target$jscomp$0.push("/>");
+        target$jscomp$0.push(endOfStartTagSelfClosing);
         null != formData && formData.forEach(pushAdditionalFormField, target$jscomp$0);
         return null;
       case "button":
@@ -1243,11 +1401,13 @@ function requireReactDomServer_bun_production() {
           formTarget$jscomp$0,
           name$jscomp$0
         );
-        target$jscomp$0.push(">");
+        target$jscomp$0.push(endOfStartTag);
         null != formData$jscomp$0 && formData$jscomp$0.forEach(pushAdditionalFormField, target$jscomp$0);
         pushInnerHTML(target$jscomp$0, innerHTML$jscomp$2, children$jscomp$3);
         if ("string" === typeof children$jscomp$3) {
-          target$jscomp$0.push(escapeTextForBrowser(children$jscomp$3));
+          target$jscomp$0.push(
+            stringToChunk(escapeTextForBrowser(children$jscomp$3))
+          );
           var JSCompiler_inline_result$jscomp$0 = null;
         } else JSCompiler_inline_result$jscomp$0 = children$jscomp$3;
         return JSCompiler_inline_result$jscomp$0;
@@ -1292,22 +1452,24 @@ function requireReactDomServer_bun_production() {
             formAction$jscomp$1
           );
           null !== customFields ? (formAction$jscomp$1 = customFields.action || "", formEncType$jscomp$1 = customFields.encType, formMethod$jscomp$1 = customFields.method, formTarget$jscomp$1 = customFields.target, formData$jscomp$1 = customFields.data, formActionName = customFields.name) : (target$jscomp$0.push(
-            " ",
-            "action",
-            '="',
+            attributeSeparator,
+            stringToChunk("action"),
+            attributeAssign,
             actionJavaScriptURL,
-            '"'
+            attributeEnd
           ), formTarget$jscomp$1 = formMethod$jscomp$1 = formEncType$jscomp$1 = formAction$jscomp$1 = null, injectFormReplayingRuntime(resumableState, renderState));
         }
         null != formAction$jscomp$1 && pushAttribute(target$jscomp$0, "action", formAction$jscomp$1);
         null != formEncType$jscomp$1 && pushAttribute(target$jscomp$0, "encType", formEncType$jscomp$1);
         null != formMethod$jscomp$1 && pushAttribute(target$jscomp$0, "method", formMethod$jscomp$1);
         null != formTarget$jscomp$1 && pushAttribute(target$jscomp$0, "target", formTarget$jscomp$1);
-        target$jscomp$0.push(">");
-        null !== formActionName && (target$jscomp$0.push('<input type="hidden"'), pushStringAttribute(target$jscomp$0, "name", formActionName), target$jscomp$0.push("/>"), null != formData$jscomp$1 && formData$jscomp$1.forEach(pushAdditionalFormField, target$jscomp$0));
+        target$jscomp$0.push(endOfStartTag);
+        null !== formActionName && (target$jscomp$0.push(startHiddenInputChunk), pushStringAttribute(target$jscomp$0, "name", formActionName), target$jscomp$0.push(endOfStartTagSelfClosing), null != formData$jscomp$1 && formData$jscomp$1.forEach(pushAdditionalFormField, target$jscomp$0));
         pushInnerHTML(target$jscomp$0, innerHTML$jscomp$3, children$jscomp$4);
         if ("string" === typeof children$jscomp$4) {
-          target$jscomp$0.push(escapeTextForBrowser(children$jscomp$4));
+          target$jscomp$0.push(
+            stringToChunk(escapeTextForBrowser(children$jscomp$4))
+          );
           var JSCompiler_inline_result$jscomp$1 = null;
         } else JSCompiler_inline_result$jscomp$1 = children$jscomp$4;
         return JSCompiler_inline_result$jscomp$1;
@@ -1331,7 +1493,7 @@ function requireReactDomServer_bun_production() {
                   );
               }
           }
-        target$jscomp$0.push(">");
+        target$jscomp$0.push(endOfStartTag);
         return null;
       case "object":
         target$jscomp$0.push(startChunkForTag("object"));
@@ -1351,11 +1513,11 @@ function requireReactDomServer_bun_production() {
                   var sanitizedValue = sanitizeURL("" + propValue$jscomp$7);
                   if ("" === sanitizedValue) break;
                   target$jscomp$0.push(
-                    " ",
-                    "data",
-                    '="',
-                    escapeTextForBrowser(sanitizedValue),
-                    '"'
+                    attributeSeparator,
+                    stringToChunk("data"),
+                    attributeAssign,
+                    stringToChunk(escapeTextForBrowser(sanitizedValue)),
+                    attributeEnd
                   );
                   break;
                 default:
@@ -1366,10 +1528,12 @@ function requireReactDomServer_bun_production() {
                   );
               }
           }
-        target$jscomp$0.push(">");
+        target$jscomp$0.push(endOfStartTag);
         pushInnerHTML(target$jscomp$0, innerHTML$jscomp$4, children$jscomp$5);
         if ("string" === typeof children$jscomp$5) {
-          target$jscomp$0.push(escapeTextForBrowser(children$jscomp$5));
+          target$jscomp$0.push(
+            stringToChunk(escapeTextForBrowser(children$jscomp$5))
+          );
           var JSCompiler_inline_result$jscomp$2 = null;
         } else JSCompiler_inline_result$jscomp$2 = children$jscomp$5;
         return JSCompiler_inline_result$jscomp$2;
@@ -1399,7 +1563,7 @@ function requireReactDomServer_bun_production() {
             if (null !== resourceState) {
               resumableState.styleResources[href] = null;
               styleQueue || (styleQueue = {
-                precedence: escapeTextForBrowser(precedence),
+                precedence: stringToChunk(escapeTextForBrowser(precedence)),
                 rules: [],
                 hrefs: [],
                 sheets: /* @__PURE__ */ new Map()
@@ -1422,14 +1586,14 @@ function requireReactDomServer_bun_production() {
               var resource$9 = styleQueue.sheets.get(href);
               resource$9 && hoistableState && hoistableState.stylesheets.add(resource$9);
             }
-            textEmbedded && target$jscomp$0.push("<!-- -->");
+            textEmbedded && target$jscomp$0.push(textSeparator);
             JSCompiler_inline_result$jscomp$4 = null;
           }
         else
           props.onLoad || props.onError ? JSCompiler_inline_result$jscomp$4 = pushLinkImpl(
             target$jscomp$0,
             props
-          ) : (textEmbedded && target$jscomp$0.push("<!-- -->"), JSCompiler_inline_result$jscomp$4 = isFallback$jscomp$0 ? null : pushLinkImpl(renderState.hoistableChunks, props));
+          ) : (textEmbedded && target$jscomp$0.push(textSeparator), JSCompiler_inline_result$jscomp$4 = isFallback$jscomp$0 ? null : pushLinkImpl(renderState.hoistableChunks, props));
         return JSCompiler_inline_result$jscomp$4;
       case "script":
         var noscriptTagInScope$jscomp$1 = formatContext.tagScope & 1, asyncProp = props.async;
@@ -1458,7 +1622,7 @@ function requireReactDomServer_bun_production() {
             renderState.scripts.add(resource$jscomp$0);
             pushScriptImpl(resource$jscomp$0, scriptProps);
           }
-          textEmbedded && target$jscomp$0.push("<!-- -->");
+          textEmbedded && target$jscomp$0.push(textSeparator);
           JSCompiler_inline_result$jscomp$5 = null;
         }
         return JSCompiler_inline_result$jscomp$5;
@@ -1486,9 +1650,11 @@ function requireReactDomServer_bun_production() {
                     );
                 }
             }
-          target$jscomp$0.push(">");
+          target$jscomp$0.push(endOfStartTag);
           var child = Array.isArray(children$jscomp$6) ? 2 > children$jscomp$6.length ? children$jscomp$6[0] : null : children$jscomp$6;
-          "function" !== typeof child && "symbol" !== typeof child && null !== child && void 0 !== child && target$jscomp$0.push(("" + child).replace(styleRegex, styleReplacer));
+          "function" !== typeof child && "symbol" !== typeof child && null !== child && void 0 !== child && target$jscomp$0.push(
+            stringToChunk(("" + child).replace(styleRegex, styleReplacer))
+          );
           pushInnerHTML(target$jscomp$0, innerHTML$jscomp$5, children$jscomp$6);
           target$jscomp$0.push(endChunkForTag("style"));
           var JSCompiler_inline_result$jscomp$6 = null;
@@ -1497,14 +1663,18 @@ function requireReactDomServer_bun_production() {
           if (null !== (resumableState.styleResources.hasOwnProperty(href$jscomp$0) ? resumableState.styleResources[href$jscomp$0] : void 0)) {
             resumableState.styleResources[href$jscomp$0] = null;
             styleQueue$jscomp$0 || (styleQueue$jscomp$0 = {
-              precedence: escapeTextForBrowser(precedence$jscomp$0),
+              precedence: stringToChunk(
+                escapeTextForBrowser(precedence$jscomp$0)
+              ),
               rules: [],
               hrefs: [],
               sheets: /* @__PURE__ */ new Map()
             }, renderState.styles.set(precedence$jscomp$0, styleQueue$jscomp$0));
             var nonceStyle = renderState.nonce.style;
             if (!nonceStyle || nonceStyle === nonce) {
-              styleQueue$jscomp$0.hrefs.push(escapeTextForBrowser(href$jscomp$0));
+              styleQueue$jscomp$0.hrefs.push(
+                stringToChunk(escapeTextForBrowser(href$jscomp$0))
+              );
               var target = styleQueue$jscomp$0.rules, children$jscomp$7 = null, innerHTML$jscomp$6 = null, propKey$jscomp$9;
               for (propKey$jscomp$9 in props)
                 if (hasOwnProperty.call(props, propKey$jscomp$9)) {
@@ -1520,13 +1690,15 @@ function requireReactDomServer_bun_production() {
                 }
               var child$jscomp$0 = Array.isArray(children$jscomp$7) ? 2 > children$jscomp$7.length ? children$jscomp$7[0] : null : children$jscomp$7;
               "function" !== typeof child$jscomp$0 && "symbol" !== typeof child$jscomp$0 && null !== child$jscomp$0 && void 0 !== child$jscomp$0 && target.push(
-                ("" + child$jscomp$0).replace(styleRegex, styleReplacer)
+                stringToChunk(
+                  ("" + child$jscomp$0).replace(styleRegex, styleReplacer)
+                )
               );
               pushInnerHTML(target, innerHTML$jscomp$6, children$jscomp$7);
             }
           }
           styleQueue$jscomp$0 && hoistableState && hoistableState.styles.add(styleQueue$jscomp$0);
-          textEmbedded && target$jscomp$0.push("<!-- -->");
+          textEmbedded && target$jscomp$0.push(textSeparator);
           JSCompiler_inline_result$jscomp$6 = void 0;
         }
         return JSCompiler_inline_result$jscomp$6;
@@ -1539,7 +1711,7 @@ function requireReactDomServer_bun_production() {
             "meta"
           );
         else
-          textEmbedded && target$jscomp$0.push("<!-- -->"), JSCompiler_inline_result$jscomp$7 = isFallback$jscomp$1 ? null : "string" === typeof props.charSet ? pushSelfClosing(renderState.charsetChunks, props, "meta") : "viewport" === props.name ? pushSelfClosing(renderState.viewportChunks, props, "meta") : pushSelfClosing(renderState.hoistableChunks, props, "meta");
+          textEmbedded && target$jscomp$0.push(textSeparator), JSCompiler_inline_result$jscomp$7 = isFallback$jscomp$1 ? null : "string" === typeof props.charSet ? pushSelfClosing(renderState.charsetChunks, props, "meta") : "viewport" === props.name ? pushSelfClosing(renderState.viewportChunks, props, "meta") : pushSelfClosing(renderState.hoistableChunks, props, "meta");
         return JSCompiler_inline_result$jscomp$7;
       case "listing":
       case "pre":
@@ -1564,7 +1736,7 @@ function requireReactDomServer_bun_production() {
                   );
               }
           }
-        target$jscomp$0.push(">");
+        target$jscomp$0.push(endOfStartTag);
         if (null != innerHTML$jscomp$7) {
           if (null != children$jscomp$8)
             throw Error(
@@ -1575,9 +1747,9 @@ function requireReactDomServer_bun_production() {
               "`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. Please visit https://react.dev/link/dangerously-set-inner-html for more information."
             );
           var html = innerHTML$jscomp$7.__html;
-          null !== html && void 0 !== html && ("string" === typeof html && 0 < html.length && "\n" === html[0] ? target$jscomp$0.push("\n", html) : target$jscomp$0.push("" + html));
+          null !== html && void 0 !== html && ("string" === typeof html && 0 < html.length && "\n" === html[0] ? target$jscomp$0.push(leadingNewline, stringToChunk(html)) : target$jscomp$0.push(stringToChunk("" + html)));
         }
-        "string" === typeof children$jscomp$8 && "\n" === children$jscomp$8[0] && target$jscomp$0.push("\n");
+        "string" === typeof children$jscomp$8 && "\n" === children$jscomp$8[0] && target$jscomp$0.push(leadingNewline);
         return children$jscomp$8;
       case "img":
         var pictureOrNoScriptTagInScope = formatContext.tagScope & 3, src = props.src, srcSet = props.srcSet;
@@ -1642,7 +1814,7 @@ function requireReactDomServer_bun_production() {
           var preamble = preambleState || renderState.preamble;
           if (preamble.headChunks)
             throw Error("The `<head>` tag may only be rendered once.");
-          null !== preambleState && target$jscomp$0.push("<!--head-->");
+          null !== preambleState && target$jscomp$0.push(headPreambleContributionChunk);
           preamble.headChunks = [];
           var JSCompiler_inline_result$jscomp$9 = pushStartSingletonElement(
             preamble.headChunks,
@@ -1661,7 +1833,7 @@ function requireReactDomServer_bun_production() {
           var preamble$jscomp$0 = preambleState || renderState.preamble;
           if (preamble$jscomp$0.bodyChunks)
             throw Error("The `<body>` tag may only be rendered once.");
-          null !== preambleState && target$jscomp$0.push("<!--body-->");
+          null !== preambleState && target$jscomp$0.push(bodyPreambleContributionChunk);
           preamble$jscomp$0.bodyChunks = [];
           var JSCompiler_inline_result$jscomp$10 = pushStartSingletonElement(
             preamble$jscomp$0.bodyChunks,
@@ -1680,8 +1852,8 @@ function requireReactDomServer_bun_production() {
           var preamble$jscomp$1 = preambleState || renderState.preamble;
           if (preamble$jscomp$1.htmlChunks)
             throw Error("The `<html>` tag may only be rendered once.");
-          null !== preambleState && target$jscomp$0.push("<!--html-->");
-          preamble$jscomp$1.htmlChunks = ["<!DOCTYPE html>"];
+          null !== preambleState && target$jscomp$0.push(htmlPreambleContributionChunk);
+          preamble$jscomp$1.htmlChunks = [doctypeChunk];
           var JSCompiler_inline_result$jscomp$11 = pushStartSingletonElement(
             preamble$jscomp$1.htmlChunks,
             props,
@@ -1724,17 +1896,17 @@ function requireReactDomServer_bun_production() {
                       if (true === propValue$jscomp$11) propValue$jscomp$11 = "";
                       else if ("object" === typeof propValue$jscomp$11) continue;
                       target$jscomp$0.push(
-                        " ",
-                        attributeName,
-                        '="',
-                        escapeTextForBrowser(propValue$jscomp$11),
-                        '"'
+                        attributeSeparator,
+                        stringToChunk(attributeName),
+                        attributeAssign,
+                        stringToChunk(escapeTextForBrowser(propValue$jscomp$11)),
+                        attributeEnd
                       );
                     }
                 }
               }
             }
-          target$jscomp$0.push(">");
+          target$jscomp$0.push(endOfStartTag);
           pushInnerHTML(target$jscomp$0, innerHTML$jscomp$8, children$jscomp$9);
           return children$jscomp$9;
         }
@@ -1744,7 +1916,7 @@ function requireReactDomServer_bun_production() {
   var endTagCache = /* @__PURE__ */ new Map();
   function endChunkForTag(tag) {
     var chunk = endTagCache.get(tag);
-    void 0 === chunk && (chunk = "</" + tag + ">", endTagCache.set(tag, chunk));
+    void 0 === chunk && (chunk = stringToPrecomputedChunk("</" + tag + ">"), endTagCache.set(tag, chunk));
     return chunk;
   }
   function hoistPreambleState(renderState, preambleState) {
@@ -1757,43 +1929,53 @@ function requireReactDomServer_bun_production() {
     renderState = renderState.bootstrapChunks;
     for (var i = 0; i < renderState.length - 1; i++)
       writeChunk(destination, renderState[i]);
-    return i < renderState.length ? (i = renderState[i], renderState.length = 0, !!destination.write(i)) : true;
+    return i < renderState.length ? (i = renderState[i], renderState.length = 0, writeChunkAndReturn(destination, i)) : true;
   }
+  var shellTimeRuntimeScript = stringToPrecomputedChunk(
+    "requestAnimationFrame(function(){$RT=performance.now()});"
+  ), placeholder1 = stringToPrecomputedChunk('<template id="'), placeholder2 = stringToPrecomputedChunk('"></template>'), startActivityBoundary = stringToPrecomputedChunk("<!--&-->"), endActivityBoundary = stringToPrecomputedChunk("<!--/&-->"), startCompletedSuspenseBoundary = stringToPrecomputedChunk("<!--$-->"), startPendingSuspenseBoundary1 = stringToPrecomputedChunk(
+    '<!--$?--><template id="'
+  ), startPendingSuspenseBoundary2 = stringToPrecomputedChunk('"></template>'), startClientRenderedSuspenseBoundary = stringToPrecomputedChunk("<!--$!-->"), endSuspenseBoundary = stringToPrecomputedChunk("<!--/$-->"), clientRenderedSuspenseBoundaryError1 = stringToPrecomputedChunk("<template"), clientRenderedSuspenseBoundaryErrorAttrInterstitial = stringToPrecomputedChunk('"'), clientRenderedSuspenseBoundaryError1A = stringToPrecomputedChunk(' data-dgst="');
+  stringToPrecomputedChunk(' data-msg="');
+  stringToPrecomputedChunk(' data-stck="');
+  stringToPrecomputedChunk(' data-cstck="');
+  var clientRenderedSuspenseBoundaryError2 = stringToPrecomputedChunk("></template>");
   function writeStartPendingSuspenseBoundary(destination, renderState, id) {
-    writeChunk(destination, '<!--$?--><template id="');
+    writeChunk(destination, startPendingSuspenseBoundary1);
     if (null === id)
       throw Error(
         "An ID must have been assigned before we can complete the boundary."
       );
     writeChunk(destination, renderState.boundaryPrefix);
-    writeChunk(destination, id.toString(16));
-    return !!destination.write('"></template>');
+    writeChunk(destination, stringToChunk(id.toString(16)));
+    return writeChunkAndReturn(destination, startPendingSuspenseBoundary2);
   }
+  var startSegmentHTML = stringToPrecomputedChunk('<div hidden id="'), startSegmentHTML2 = stringToPrecomputedChunk('">'), endSegmentHTML = stringToPrecomputedChunk("</div>"), startSegmentSVG = stringToPrecomputedChunk(
+    '<svg aria-hidden="true" style="display:none" id="'
+  ), startSegmentSVG2 = stringToPrecomputedChunk('">'), endSegmentSVG = stringToPrecomputedChunk("</svg>"), startSegmentMathML = stringToPrecomputedChunk(
+    '<math aria-hidden="true" style="display:none" id="'
+  ), startSegmentMathML2 = stringToPrecomputedChunk('">'), endSegmentMathML = stringToPrecomputedChunk("</math>"), startSegmentTable = stringToPrecomputedChunk('<table hidden id="'), startSegmentTable2 = stringToPrecomputedChunk('">'), endSegmentTable = stringToPrecomputedChunk("</table>"), startSegmentTableBody = stringToPrecomputedChunk('<table hidden><tbody id="'), startSegmentTableBody2 = stringToPrecomputedChunk('">'), endSegmentTableBody = stringToPrecomputedChunk("</tbody></table>"), startSegmentTableRow = stringToPrecomputedChunk('<table hidden><tr id="'), startSegmentTableRow2 = stringToPrecomputedChunk('">'), endSegmentTableRow = stringToPrecomputedChunk("</tr></table>"), startSegmentColGroup = stringToPrecomputedChunk(
+    '<table hidden><colgroup id="'
+  ), startSegmentColGroup2 = stringToPrecomputedChunk('">'), endSegmentColGroup = stringToPrecomputedChunk("</colgroup></table>");
   function writeStartSegment(destination, renderState, formatContext, id) {
     switch (formatContext.insertionMode) {
       case 0:
       case 1:
       case 3:
       case 2:
-        return writeChunk(destination, '<div hidden id="'), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, id.toString(16)), !!destination.write('">');
+        return writeChunk(destination, startSegmentHTML), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, stringToChunk(id.toString(16))), writeChunkAndReturn(destination, startSegmentHTML2);
       case 4:
-        return writeChunk(
-          destination,
-          '<svg aria-hidden="true" style="display:none" id="'
-        ), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, id.toString(16)), !!destination.write('">');
+        return writeChunk(destination, startSegmentSVG), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, stringToChunk(id.toString(16))), writeChunkAndReturn(destination, startSegmentSVG2);
       case 5:
-        return writeChunk(
-          destination,
-          '<math aria-hidden="true" style="display:none" id="'
-        ), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, id.toString(16)), !!destination.write('">');
+        return writeChunk(destination, startSegmentMathML), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, stringToChunk(id.toString(16))), writeChunkAndReturn(destination, startSegmentMathML2);
       case 6:
-        return writeChunk(destination, '<table hidden id="'), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, id.toString(16)), !!destination.write('">');
+        return writeChunk(destination, startSegmentTable), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, stringToChunk(id.toString(16))), writeChunkAndReturn(destination, startSegmentTable2);
       case 7:
-        return writeChunk(destination, '<table hidden><tbody id="'), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, id.toString(16)), !!destination.write('">');
+        return writeChunk(destination, startSegmentTableBody), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, stringToChunk(id.toString(16))), writeChunkAndReturn(destination, startSegmentTableBody2);
       case 8:
-        return writeChunk(destination, '<table hidden><tr id="'), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, id.toString(16)), !!destination.write('">');
+        return writeChunk(destination, startSegmentTableRow), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, stringToChunk(id.toString(16))), writeChunkAndReturn(destination, startSegmentTableRow2);
       case 9:
-        return writeChunk(destination, '<table hidden><colgroup id="'), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, id.toString(16)), !!destination.write('">');
+        return writeChunk(destination, startSegmentColGroup), writeChunk(destination, renderState.segmentPrefix), writeChunk(destination, stringToChunk(id.toString(16))), writeChunkAndReturn(destination, startSegmentColGroup2);
       default:
         throw Error("Unknown insertion mode. This is a bug in React.");
     }
@@ -1804,23 +1986,54 @@ function requireReactDomServer_bun_production() {
       case 1:
       case 3:
       case 2:
-        return !!destination.write("</div>");
+        return writeChunkAndReturn(destination, endSegmentHTML);
       case 4:
-        return !!destination.write("</svg>");
+        return writeChunkAndReturn(destination, endSegmentSVG);
       case 5:
-        return !!destination.write("</math>");
+        return writeChunkAndReturn(destination, endSegmentMathML);
       case 6:
-        return !!destination.write("</table>");
+        return writeChunkAndReturn(destination, endSegmentTable);
       case 7:
-        return !!destination.write("</tbody></table>");
+        return writeChunkAndReturn(destination, endSegmentTableBody);
       case 8:
-        return !!destination.write("</tr></table>");
+        return writeChunkAndReturn(destination, endSegmentTableRow);
       case 9:
-        return !!destination.write("</colgroup></table>");
+        return writeChunkAndReturn(destination, endSegmentColGroup);
       default:
         throw Error("Unknown insertion mode. This is a bug in React.");
     }
   }
+  var completeSegmentScript1Full = stringToPrecomputedChunk(
+    '$RS=function(a,b){a=document.getElementById(a);b=document.getElementById(b);for(a.parentNode.removeChild(a);a.firstChild;)b.parentNode.insertBefore(a.firstChild,b);b.parentNode.removeChild(b)};$RS("'
+  ), completeSegmentScript1Partial = stringToPrecomputedChunk('$RS("'), completeSegmentScript2 = stringToPrecomputedChunk('","'), completeSegmentScriptEnd = stringToPrecomputedChunk('")<\/script>');
+  stringToPrecomputedChunk('<template data-rsi="" data-sid="');
+  stringToPrecomputedChunk('" data-pid="');
+  var completeBoundaryScriptFunctionOnly = stringToPrecomputedChunk(
+    '$RB=[];$RV=function(a){$RT=performance.now();for(var b=0;b<a.length;b+=2){var c=a[b],e=a[b+1];null!==e.parentNode&&e.parentNode.removeChild(e);var f=c.parentNode;if(f){var g=c.previousSibling,h=0;do{if(c&&8===c.nodeType){var d=c.data;if("/$"===d||"/&"===d)if(0===h)break;else h--;else"$"!==d&&"$?"!==d&&"$~"!==d&&"$!"!==d&&"&"!==d||h++}d=c.nextSibling;f.removeChild(c);c=d}while(c);for(;e.firstChild;)f.insertBefore(e.firstChild,c);g.data="$";g._reactRetry&&requestAnimationFrame(g._reactRetry)}}a.length=0};\n$RC=function(a,b){if(b=document.getElementById(b))(a=document.getElementById(a))?(a.previousSibling.data="$~",$RB.push(a,b),2===$RB.length&&("number"!==typeof $RT?requestAnimationFrame($RV.bind(null,$RB)):(a=performance.now(),setTimeout($RV.bind(null,$RB),2300>a&&2E3<a?2300-a:$RT+300-a)))):b.parentNode.removeChild(b)};'
+  );
+  stringToChunk(
+    `$RV=function(A,g){function k(a,b){var e=a.getAttribute(b);e&&(b=a.style,l.push(a,b.viewTransitionName,b.viewTransitionClass),"auto"!==e&&(b.viewTransitionClass=e),(a=a.getAttribute("vt-name"))||(a="_T_"+K++ +"_"),b.viewTransitionName=a,B=!0)}var B=!1,K=0,l=[];try{var f=document.__reactViewTransition;if(f){f.finished.finally($RV.bind(null,g));return}var m=new Map;for(f=1;f<g.length;f+=2)for(var h=g[f].querySelectorAll("[vt-share]"),d=0;d<h.length;d++){var c=h[d];m.set(c.getAttribute("vt-name"),c)}var u=[];for(h=0;h<g.length;h+=2){var C=g[h],x=C.parentNode;if(x){var v=x.getBoundingClientRect();if(v.left||v.top||v.width||v.height){c=C;for(f=0;c;){if(8===c.nodeType){var r=c.data;if("/$"===r)if(0===f)break;else f--;else"$"!==r&&"$?"!==r&&"$~"!==r&&"$!"!==r||f++}else if(1===c.nodeType){d=c;var D=d.getAttribute("vt-name"),y=m.get(D);k(d,y?"vt-share":"vt-exit");y&&(k(y,"vt-share"),m.set(D,null));var E=d.querySelectorAll("[vt-share]");for(d=0;d<E.length;d++){var F=E[d],G=F.getAttribute("vt-name"),
+H=m.get(G);H&&(k(F,"vt-share"),k(H,"vt-share"),m.set(G,null))}}c=c.nextSibling}for(var I=g[h+1],t=I.firstElementChild;t;)null!==m.get(t.getAttribute("vt-name"))&&k(t,"vt-enter"),t=t.nextElementSibling;c=x;do for(var n=c.firstElementChild;n;){var J=n.getAttribute("vt-update");J&&"none"!==J&&!l.includes(n)&&k(n,"vt-update");n=n.nextElementSibling}while((c=c.parentNode)&&1===c.nodeType&&"none"!==c.getAttribute("vt-update"));u.push.apply(u,I.querySelectorAll('img[src]:not([loading="lazy"])'))}}}if(B){var z=
+document.__reactViewTransition=document.startViewTransition({update:function(){A(g);for(var a=[document.documentElement.clientHeight,document.fonts.ready],b={},e=0;e<u.length;b={g:b.g},e++)if(b.g=u[e],!b.g.complete){var p=b.g.getBoundingClientRect();0<p.bottom&&0<p.right&&p.top<window.innerHeight&&p.left<window.innerWidth&&(p=new Promise(function(w){return function(q){w.g.addEventListener("load",q);w.g.addEventListener("error",q)}}(b)),a.push(p))}return Promise.race([Promise.all(a),new Promise(function(w){var q=
+performance.now();setTimeout(w,2300>q&&2E3<q?2300-q:500)})])},types:[]});z.ready.finally(function(){for(var a=l.length-3;0<=a;a-=3){var b=l[a],e=b.style;e.viewTransitionName=l[a+1];e.viewTransitionClass=l[a+1];""===b.getAttribute("style")&&b.removeAttribute("style")}});z.finished.finally(function(){document.__reactViewTransition===z&&(document.__reactViewTransition=null)});$RB=[];return}}catch(a){}A(g)}.bind(null,$RV);`
+  );
+  var completeBoundaryScript1Partial = stringToPrecomputedChunk('$RC("'), completeBoundaryWithStylesScript1FullPartial = stringToPrecomputedChunk(
+    '$RM=new Map;$RR=function(n,w,p){function u(q){this._p=null;q()}for(var r=new Map,t=document,h,b,e=t.querySelectorAll("link[data-precedence],style[data-precedence]"),v=[],k=0;b=e[k++];)"not all"===b.getAttribute("media")?v.push(b):("LINK"===b.tagName&&$RM.set(b.getAttribute("href"),b),r.set(b.dataset.precedence,h=b));e=0;b=[];var l,a;for(k=!0;;){if(k){var f=p[e++];if(!f){k=!1;e=0;continue}var c=!1,m=0;var d=f[m++];if(a=$RM.get(d)){var g=a._p;c=!0}else{a=t.createElement("link");a.href=d;a.rel=\n"stylesheet";for(a.dataset.precedence=l=f[m++];g=f[m++];)a.setAttribute(g,f[m++]);g=a._p=new Promise(function(q,x){a.onload=u.bind(a,q);a.onerror=u.bind(a,x)});$RM.set(d,a)}d=a.getAttribute("media");!g||d&&!matchMedia(d).matches||b.push(g);if(c)continue}else{a=v[e++];if(!a)break;l=a.getAttribute("data-precedence");a.removeAttribute("media")}c=r.get(l)||h;c===h&&(h=a);r.set(l,a);c?c.parentNode.insertBefore(a,c.nextSibling):(c=t.head,c.insertBefore(a,c.firstChild))}if(p=document.getElementById(n))p.previousSibling.data=\n"$~";Promise.all(b).then($RC.bind(null,n,w),$RX.bind(null,n,"CSS failed to load"))};$RR("'
+  ), completeBoundaryWithStylesScript1Partial = stringToPrecomputedChunk('$RR("'), completeBoundaryScript2 = stringToPrecomputedChunk('","'), completeBoundaryScript3a = stringToPrecomputedChunk('",'), completeBoundaryScript3b = stringToPrecomputedChunk('"'), completeBoundaryScriptEnd = stringToPrecomputedChunk(")<\/script>");
+  stringToPrecomputedChunk('<template data-rci="" data-bid="');
+  stringToPrecomputedChunk('<template data-rri="" data-bid="');
+  stringToPrecomputedChunk('" data-sid="');
+  stringToPrecomputedChunk('" data-sty="');
+  var clientRenderScriptFunctionOnly = stringToPrecomputedChunk(
+    '$RX=function(b,c,d,e,f){var a=document.getElementById(b);a&&(b=a.previousSibling,b.data="$!",a=a.dataset,c&&(a.dgst=c),d&&(a.msg=d),e&&(a.stck=e),f&&(a.cstck=f),b._reactRetry&&b._reactRetry())};'
+  ), clientRenderScript1Full = stringToPrecomputedChunk(
+    '$RX=function(b,c,d,e,f){var a=document.getElementById(b);a&&(b=a.previousSibling,b.data="$!",a=a.dataset,c&&(a.dgst=c),d&&(a.msg=d),e&&(a.stck=e),f&&(a.cstck=f),b._reactRetry&&b._reactRetry())};;$RX("'
+  ), clientRenderScript1Partial = stringToPrecomputedChunk('$RX("'), clientRenderScript1A = stringToPrecomputedChunk('"'), clientRenderErrorScriptArgInterstitial = stringToPrecomputedChunk(","), clientRenderScriptEnd = stringToPrecomputedChunk(")<\/script>");
+  stringToPrecomputedChunk('<template data-rxi="" data-bid="');
+  stringToPrecomputedChunk('" data-dgst="');
+  stringToPrecomputedChunk('" data-msg="');
+  stringToPrecomputedChunk('" data-stck="');
+  stringToPrecomputedChunk('" data-cstck="');
   var regexForJSStringsInInstructionScripts = /[<\u2028\u2029]/g;
   function escapeJSStringsForInstructionScripts(input) {
     return JSON.stringify(input).replace(
@@ -1865,19 +2078,24 @@ function requireReactDomServer_bun_production() {
       }
     );
   }
-  var currentlyRenderingBoundaryHasStylesToHoist = false, destinationHasCapacity = true;
+  var lateStyleTagResourceOpen1 = stringToPrecomputedChunk(
+    ' media="not all" data-precedence="'
+  ), lateStyleTagResourceOpen2 = stringToPrecomputedChunk('" data-href="'), lateStyleTagResourceOpen3 = stringToPrecomputedChunk('">'), lateStyleTagTemplateClose = stringToPrecomputedChunk("</style>"), currentlyRenderingBoundaryHasStylesToHoist = false, destinationHasCapacity = true;
   function flushStyleTagsLateForBoundary(styleQueue) {
     var rules = styleQueue.rules, hrefs = styleQueue.hrefs, i = 0;
     if (hrefs.length) {
       writeChunk(this, currentlyFlushingRenderState.startInlineStyle);
-      writeChunk(this, ' media="not all" data-precedence="');
+      writeChunk(this, lateStyleTagResourceOpen1);
       writeChunk(this, styleQueue.precedence);
-      for (writeChunk(this, '" data-href="'); i < hrefs.length - 1; i++)
-        writeChunk(this, hrefs[i]), writeChunk(this, " ");
+      for (writeChunk(this, lateStyleTagResourceOpen2); i < hrefs.length - 1; i++)
+        writeChunk(this, hrefs[i]), writeChunk(this, spaceSeparator);
       writeChunk(this, hrefs[i]);
-      writeChunk(this, '">');
+      writeChunk(this, lateStyleTagResourceOpen3);
       for (i = 0; i < rules.length; i++) writeChunk(this, rules[i]);
-      destinationHasCapacity = !!this.write("</style>");
+      destinationHasCapacity = writeChunkAndReturn(
+        this,
+        lateStyleTagTemplateClose
+      );
       currentlyRenderingBoundaryHasStylesToHoist = true;
       rules.length = 0;
       hrefs.length = 0;
@@ -1908,6 +2126,7 @@ function requireReactDomServer_bun_production() {
     stylesheetFlushingQueue.length = 0;
     stylesheet.state = 2;
   }
+  var styleTagResourceOpen1 = stringToPrecomputedChunk(' data-precedence="'), styleTagResourceOpen2 = stringToPrecomputedChunk('" data-href="'), spaceSeparator = stringToPrecomputedChunk(" "), styleTagResourceOpen3 = stringToPrecomputedChunk('">'), styleTagResourceClose = stringToPrecomputedChunk("</style>");
   function flushStylesInPreamble(styleQueue) {
     var hasStylesheets = 0 < styleQueue.sheets.size;
     styleQueue.sheets.forEach(flushStyleInPreamble, this);
@@ -1915,18 +2134,18 @@ function requireReactDomServer_bun_production() {
     var rules = styleQueue.rules, hrefs = styleQueue.hrefs;
     if (!hasStylesheets || hrefs.length) {
       writeChunk(this, currentlyFlushingRenderState.startInlineStyle);
-      writeChunk(this, ' data-precedence="');
+      writeChunk(this, styleTagResourceOpen1);
       writeChunk(this, styleQueue.precedence);
       styleQueue = 0;
       if (hrefs.length) {
-        for (writeChunk(this, '" data-href="'); styleQueue < hrefs.length - 1; styleQueue++)
-          writeChunk(this, hrefs[styleQueue]), writeChunk(this, " ");
+        for (writeChunk(this, styleTagResourceOpen2); styleQueue < hrefs.length - 1; styleQueue++)
+          writeChunk(this, hrefs[styleQueue]), writeChunk(this, spaceSeparator);
         writeChunk(this, hrefs[styleQueue]);
       }
-      writeChunk(this, '">');
+      writeChunk(this, styleTagResourceOpen3);
       for (styleQueue = 0; styleQueue < rules.length; styleQueue++)
         writeChunk(this, rules[styleQueue]);
-      writeChunk(this, "</style>");
+      writeChunk(this, styleTagResourceClose);
       rules.length = 0;
       hrefs.length = 0;
     }
@@ -1955,35 +2174,41 @@ function requireReactDomServer_bun_production() {
     styleQueue.sheets.forEach(preloadLateStyle, this);
     styleQueue.sheets.clear();
   }
+  stringToPrecomputedChunk('<link rel="expect" href="#');
+  stringToPrecomputedChunk('" blocking="render"/>');
+  var completedShellIdAttributeStart = stringToPrecomputedChunk(' id="');
   function pushCompletedShellIdAttribute(target, resumableState) {
     0 === (resumableState.instructions & 32) && (resumableState.instructions |= 32, target.push(
-      ' id="',
-      escapeTextForBrowser("_" + resumableState.idPrefix + "R_"),
-      '"'
+      completedShellIdAttributeStart,
+      stringToChunk(escapeTextForBrowser("_" + resumableState.idPrefix + "R_")),
+      attributeEnd
     ));
   }
+  var arrayFirstOpenBracket = stringToPrecomputedChunk("["), arraySubsequentOpenBracket = stringToPrecomputedChunk(",["), arrayInterstitial = stringToPrecomputedChunk(","), arrayCloseBracket = stringToPrecomputedChunk("]");
   function writeStyleResourceDependenciesInJS(destination, hoistableState) {
-    writeChunk(destination, "[");
-    var nextArrayOpenBrackChunk = "[";
+    writeChunk(destination, arrayFirstOpenBracket);
+    var nextArrayOpenBrackChunk = arrayFirstOpenBracket;
     hoistableState.stylesheets.forEach(function(resource) {
       if (2 !== resource.state)
         if (3 === resource.state)
           writeChunk(destination, nextArrayOpenBrackChunk), writeChunk(
             destination,
-            escapeJSObjectForInstructionScripts("" + resource.props.href)
-          ), writeChunk(destination, "]"), nextArrayOpenBrackChunk = ",[";
+            stringToChunk(
+              escapeJSObjectForInstructionScripts("" + resource.props.href)
+            )
+          ), writeChunk(destination, arrayCloseBracket), nextArrayOpenBrackChunk = arraySubsequentOpenBracket;
         else {
           writeChunk(destination, nextArrayOpenBrackChunk);
           var precedence = resource.props["data-precedence"], props = resource.props, coercedHref = sanitizeURL("" + resource.props.href);
           writeChunk(
             destination,
-            escapeJSObjectForInstructionScripts(coercedHref)
+            stringToChunk(escapeJSObjectForInstructionScripts(coercedHref))
           );
           precedence = "" + precedence;
-          writeChunk(destination, ",");
+          writeChunk(destination, arrayInterstitial);
           writeChunk(
             destination,
-            escapeJSObjectForInstructionScripts(precedence)
+            stringToChunk(escapeJSObjectForInstructionScripts(precedence))
           );
           for (var propKey in props)
             if (hasOwnProperty.call(props, propKey) && (precedence = props[propKey], null != precedence))
@@ -2005,12 +2230,12 @@ function requireReactDomServer_bun_production() {
                     precedence
                   );
               }
-          writeChunk(destination, "]");
-          nextArrayOpenBrackChunk = ",[";
+          writeChunk(destination, arrayCloseBracket);
+          nextArrayOpenBrackChunk = arraySubsequentOpenBracket;
           resource.state = 3;
         }
     });
-    writeChunk(destination, "]");
+    writeChunk(destination, arrayCloseBracket);
   }
   function writeStyleResourceAttributeInJS(destination, name, value) {
     var attributeName = name.toLowerCase();
@@ -2045,16 +2270,22 @@ function requireReactDomServer_bun_production() {
           return;
         name = "" + value;
     }
-    writeChunk(destination, ",");
-    writeChunk(destination, escapeJSObjectForInstructionScripts(attributeName));
-    writeChunk(destination, ",");
-    writeChunk(destination, escapeJSObjectForInstructionScripts(name));
+    writeChunk(destination, arrayInterstitial);
+    writeChunk(
+      destination,
+      stringToChunk(escapeJSObjectForInstructionScripts(attributeName))
+    );
+    writeChunk(destination, arrayInterstitial);
+    writeChunk(
+      destination,
+      stringToChunk(escapeJSObjectForInstructionScripts(name))
+    );
   }
   function createHoistableState() {
     return { styles: /* @__PURE__ */ new Set(), stylesheets: /* @__PURE__ */ new Set(), suspenseyImages: false };
   }
   function prefetchDNS(href) {
-    var request = currentRequest ? currentRequest : null;
+    var request = resolveRequest();
     if (request) {
       var resumableState = request.resumableState, renderState = request.renderState;
       if ("string" === typeof href && href) {
@@ -2074,7 +2305,7 @@ function requireReactDomServer_bun_production() {
     } else previousDispatcher.D(href);
   }
   function preconnect(href, crossOrigin) {
-    var request = currentRequest ? currentRequest : null;
+    var request = resolveRequest();
     if (request) {
       var resumableState = request.resumableState, renderState = request.renderState;
       if ("string" === typeof href && href) {
@@ -2108,7 +2339,7 @@ function requireReactDomServer_bun_production() {
     } else previousDispatcher.C(href, crossOrigin);
   }
   function preload(href, as, options) {
-    var request = currentRequest ? currentRequest : null;
+    var request = resolveRequest();
     if (request) {
       var resumableState = request.resumableState, renderState = request.renderState;
       if (as && href) {
@@ -2177,7 +2408,7 @@ function requireReactDomServer_bun_production() {
     } else previousDispatcher.L(href, as, options);
   }
   function preloadModule(href, options) {
-    var request = currentRequest ? currentRequest : null;
+    var request = resolveRequest();
     if (request) {
       var resumableState = request.resumableState, renderState = request.renderState;
       if (href) {
@@ -2205,14 +2436,14 @@ function requireReactDomServer_bun_production() {
     } else previousDispatcher.m(href, options);
   }
   function preinitStyle(href, precedence, options) {
-    var request = currentRequest ? currentRequest : null;
+    var request = resolveRequest();
     if (request) {
       var resumableState = request.resumableState, renderState = request.renderState;
       if (href) {
         precedence = precedence || "default";
         var styleQueue = renderState.styles.get(precedence), resourceState = resumableState.styleResources.hasOwnProperty(href) ? resumableState.styleResources[href] : void 0;
         null !== resourceState && (resumableState.styleResources[href] = null, styleQueue || (styleQueue = {
-          precedence: escapeTextForBrowser(precedence),
+          precedence: stringToChunk(escapeTextForBrowser(precedence)),
           rules: [],
           hrefs: [],
           sheets: /* @__PURE__ */ new Map()
@@ -2227,7 +2458,7 @@ function requireReactDomServer_bun_production() {
     } else previousDispatcher.S(href, precedence, options);
   }
   function preinitScript(src, options) {
-    var request = currentRequest ? currentRequest : null;
+    var request = resolveRequest();
     if (request) {
       var resumableState = request.resumableState, renderState = request.renderState;
       if (src) {
@@ -2237,7 +2468,7 @@ function requireReactDomServer_bun_production() {
     } else previousDispatcher.X(src, options);
   }
   function preinitModuleScript(src, options) {
-    var request = currentRequest ? currentRequest : null;
+    var request = resolveRequest();
     if (request) {
       var resumableState = request.resumableState, renderState = request.renderState;
       if (src) {
@@ -2321,7 +2552,7 @@ function requireReactDomServer_bun_production() {
   function hasSuspenseyContent(hoistableState) {
     return 0 < hoistableState.stylesheets.size || hoistableState.suspenseyImages;
   }
-  var bind = Function.prototype.bind, REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference");
+  var bind = Function.prototype.bind, supportsRequestStorage = "function" === typeof AsyncLocalStorage, requestStorage = supportsRequestStorage ? new AsyncLocalStorage() : null, REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference");
   function getComponentNameFromType(type) {
     if (null == type) return null;
     if ("function" === typeof type)
@@ -2628,8 +2859,9 @@ function requireReactDomServer_bun_production() {
       var isSignatureEqual = action.$$IS_SIGNATURE_EQUAL;
       if (null !== request && "function" === typeof isSignatureEqual) {
         var postbackKey = request[1];
-        isSignatureEqual.call(action, request[2], request[3]) && (nextPostbackStateKey = void 0 !== permalink ? "p" + permalink : "k" + Bun.hash(
-          JSON.stringify([componentKeyPath, null, actionStateHookIndex])
+        isSignatureEqual.call(action, request[2], request[3]) && (nextPostbackStateKey = void 0 !== permalink ? "p" + permalink : "k" + murmurhash3_32_gc(
+          JSON.stringify([componentKeyPath, null, actionStateHookIndex]),
+          0
         ), postbackKey === nextPostbackStateKey && (actionStateMatchingIndex = actionStateHookIndex, initialState = request[0]));
       }
       var boundAction = action.bind(null, initialState);
@@ -2640,12 +2872,13 @@ function requireReactDomServer_bun_production() {
         prefix2 = boundAction.$$FORM_ACTION(prefix2);
         void 0 !== permalink && (permalink += "", prefix2.action = permalink);
         var formData = prefix2.data;
-        formData && (null === nextPostbackStateKey && (nextPostbackStateKey = void 0 !== permalink ? "p" + permalink : "k" + Bun.hash(
+        formData && (null === nextPostbackStateKey && (nextPostbackStateKey = void 0 !== permalink ? "p" + permalink : "k" + murmurhash3_32_gc(
           JSON.stringify([
             componentKeyPath,
             null,
             actionStateHookIndex
-          ])
+          ]),
+          0
         )), formData.append("$ACTION_KEY", nextPostbackStateKey));
         return prefix2;
       });
@@ -2763,7 +2996,14 @@ function requireReactDomServer_bun_production() {
     cacheSignal: function() {
       throw Error("Not implemented.");
     }
-  }, prefix, suffix;
+  };
+  function prepareStackTrace(error, structuredStackTrace) {
+    error = (error.name || "Error") + ": " + (error.message || "");
+    for (var i = 0; i < structuredStackTrace.length; i++)
+      error += "\n    at " + structuredStackTrace[i].toString();
+    return error;
+  }
+  var prefix, suffix;
   function describeBuiltInComponentFrame(name) {
     if (void 0 === prefix)
       try {
@@ -2780,7 +3020,7 @@ function requireReactDomServer_bun_production() {
     if (!fn || reentry) return "";
     reentry = true;
     var previousPrepareStackTrace = Error.prepareStackTrace;
-    Error.prepareStackTrace = void 0;
+    Error.prepareStackTrace = prepareStackTrace;
     try {
       var RunInRootFrame = {
         DetermineComponentFrameRoot: function() {
@@ -2891,7 +3131,7 @@ function requireReactDomServer_bun_production() {
           payload = type.name;
           lazyComponent = type.env;
           var location = type.debugLocation;
-          if (null != location && (type = Error.prepareStackTrace, Error.prepareStackTrace = void 0, location = location.stack, Error.prepareStackTrace = type, location.startsWith("Error: react-stack-top-frame\n") && (location = location.slice(29)), type = location.indexOf("\n"), -1 !== type && (location = location.slice(type + 1)), type = location.indexOf("react_stack_bottom_frame"), -1 !== type && (type = location.lastIndexOf("\n", type)), type = -1 !== type ? location = location.slice(0, type) : "", location = type.lastIndexOf("\n"), type = -1 === location ? type : type.slice(location + 1), -1 !== type.indexOf(payload))) {
+          if (null != location && (type = Error.prepareStackTrace, Error.prepareStackTrace = prepareStackTrace, location = location.stack, Error.prepareStackTrace = type, location.startsWith("Error: react-stack-top-frame\n") && (location = location.slice(29)), type = location.indexOf("\n"), -1 !== type && (location = location.slice(type + 1)), type = location.indexOf("react_stack_bottom_frame"), -1 !== type && (type = location.lastIndexOf("\n", type)), type = -1 !== type ? location = location.slice(0, type) : "", location = type.lastIndexOf("\n"), type = -1 === location ? type : type.slice(location + 1), -1 !== type.indexOf(payload))) {
             payload = "\n" + type;
             break a;
           }
@@ -2920,14 +3160,14 @@ function requireReactDomServer_bun_production() {
       "string" === typeof error[0] ? error.splice(
         0,
         1,
-        "%c%s%c " + error[0],
+        "\x1B[0m\x1B[7m%c%s\x1B[0m%c " + error[0],
         "background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px",
         " " + JSCompiler_inline_result + " ",
         ""
       ) : error.splice(
         0,
         0,
-        "%c%s%c",
+        "\x1B[0m\x1B[7m%c%s\x1B[0m%c",
         "background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px",
         " " + JSCompiler_inline_result + " ",
         ""
@@ -3009,7 +3249,120 @@ function requireReactDomServer_bun_production() {
     resumableState.pingedTasks.push(children);
     return resumableState;
   }
+  function createPrerenderRequest(children, resumableState, renderState, rootFormatContext, progressiveChunkSize, onError, onAllReady, onShellReady, onShellError, onFatalError, onPostpone) {
+    children = createRequest(
+      children,
+      resumableState,
+      renderState,
+      rootFormatContext,
+      progressiveChunkSize,
+      onError,
+      onAllReady,
+      onShellReady,
+      onShellError,
+      onFatalError,
+      onPostpone,
+      void 0
+    );
+    children.trackedPostpones = {
+      workingMap: /* @__PURE__ */ new Map(),
+      rootNodes: [],
+      rootSlots: null
+    };
+    return children;
+  }
+  function resumeRequest(children, postponedState, renderState, onError, onAllReady, onShellReady, onShellError, onFatalError, onPostpone) {
+    renderState = new RequestInstance(
+      postponedState.resumableState,
+      renderState,
+      postponedState.rootFormatContext,
+      postponedState.progressiveChunkSize,
+      onError,
+      onAllReady,
+      onShellReady,
+      onShellError,
+      onFatalError,
+      onPostpone,
+      null
+    );
+    renderState.nextSegmentId = postponedState.nextSegmentId;
+    if ("number" === typeof postponedState.replaySlots)
+      return onError = createPendingSegment(
+        renderState,
+        0,
+        null,
+        postponedState.rootFormatContext,
+        false,
+        false
+      ), onError.parentFlushed = true, children = createRenderTask(
+        renderState,
+        null,
+        children,
+        -1,
+        null,
+        onError,
+        null,
+        null,
+        renderState.abortableTasks,
+        null,
+        postponedState.rootFormatContext,
+        null,
+        emptyTreeContext,
+        null,
+        null
+      ), pushComponentStack(children), renderState.pingedTasks.push(children), renderState;
+    children = createReplayTask(
+      renderState,
+      null,
+      {
+        nodes: postponedState.replayNodes,
+        slots: postponedState.replaySlots,
+        pendingTasks: 0
+      },
+      children,
+      -1,
+      null,
+      null,
+      renderState.abortableTasks,
+      null,
+      postponedState.rootFormatContext,
+      null,
+      emptyTreeContext,
+      null,
+      null
+    );
+    pushComponentStack(children);
+    renderState.pingedTasks.push(children);
+    return renderState;
+  }
+  function resumeAndPrerenderRequest(children, postponedState, renderState, onError, onAllReady, onShellReady, onShellError, onFatalError, onPostpone) {
+    children = resumeRequest(
+      children,
+      postponedState,
+      renderState,
+      onError,
+      onAllReady,
+      onShellReady,
+      onShellError,
+      onFatalError,
+      onPostpone
+    );
+    children.trackedPostpones = {
+      workingMap: /* @__PURE__ */ new Map(),
+      rootNodes: [],
+      rootSlots: null
+    };
+    return children;
+  }
   var currentRequest = null;
+  function resolveRequest() {
+    if (currentRequest) return currentRequest;
+    if (supportsRequestStorage) {
+      var store = requestStorage.getStore();
+      if (store) return store;
+    }
+    return null;
+  }
   function pingTask(request, task) {
     request.pingedTasks.push(task);
     1 === request.pingedTasks.length && (request.flushScheduled = null !== request.destination, null !== request.trackedPostpones || 10 === request.status ? scheduleMicrotask(function() {
@@ -3249,12 +3602,7 @@ function requireReactDomServer_bun_production() {
         revealOrder.children.splice(resumeSlots, 0, resumeSegmentID);
         task.blockedSegment = resumeSegmentID;
         try {
-          renderNode(request, task, node, i), pushSegmentFinale(
-            resumeSegmentID.chunks,
-            request.renderState,
-            resumeSegmentID.lastPushedText,
-            resumeSegmentID.textEmbedded
-          ), resumeSegmentID.status = 1, finishedSegment(request, task.blockedBoundary, resumeSegmentID), 0 === --previousSuspenseListRow.pendingTasks && finishSuspenseListRow(request, previousSuspenseListRow);
+          renderNode(request, task, node, i), resumeSegmentID.lastPushedText && resumeSegmentID.textEmbedded && resumeSegmentID.chunks.push(textSeparator), resumeSegmentID.status = 1, finishedSegment(request, task.blockedBoundary, resumeSegmentID), 0 === --previousSuspenseListRow.pendingTasks && finishSuspenseListRow(request, previousSuspenseListRow);
         } catch (thrownValue) {
           throw resumeSegmentID.status = 12 === request.status ? 3 : 4, thrownValue;
         }
@@ -3291,7 +3639,7 @@ function requireReactDomServer_bun_production() {
         didEmitActionStateMarkers = true;
         segment = segment.chunks;
         for (var i = 0; i < actionStateCount; i++)
-          i === actionStateMatchingIndex2 ? segment.push("<!--F!-->") : segment.push("<!--F-->");
+          i === actionStateMatchingIndex2 ? segment.push(formStateMarkerIsMatching) : segment.push(formStateMarkerIsNotMatching);
       }
     }
     actionStateCount = task.keyPath;
@@ -3311,8 +3659,8 @@ function requireReactDomServer_bun_production() {
         var defaultProps = type.defaultProps;
         if (defaultProps) {
           newProps === props && (newProps = assign({}, newProps, props));
-          for (var propName$43 in defaultProps)
-            void 0 === newProps[propName$43] && (newProps[propName$43] = defaultProps[propName$43]);
+          for (var propName$44 in defaultProps)
+            void 0 === newProps[propName$44] && (newProps[propName$44] = defaultProps[propName$44]);
         }
         props = newProps;
         newProps = emptyContextObject;
@@ -3341,7 +3689,7 @@ function requireReactDomServer_bun_production() {
               defaultProps = ref ? type[0] : newProps.state;
               initialState = true;
               for (ref = ref ? 1 : 0; ref < type.length; ref++)
-                propName$43 = type[ref], propName$43 = "function" === typeof propName$43 ? propName$43.call(newProps, defaultProps, props, void 0) : propName$43, null != propName$43 && (initialState ? (initialState = false, defaultProps = assign({}, defaultProps, propName$43)) : assign(defaultProps, propName$43));
+                propName$44 = type[ref], propName$44 = "function" === typeof propName$44 ? propName$44.call(newProps, defaultProps, props, void 0) : propName$44, null != propName$44 && (initialState ? (initialState = false, defaultProps = assign({}, defaultProps, propName$44)) : assign(defaultProps, propName$44));
               newProps.state = defaultProps;
             }
           else defaultProps.queue = null;
@@ -3395,12 +3743,7 @@ function requireReactDomServer_bun_production() {
           newProps.preambleChildren.push(keyPath);
           task.blockedSegment = keyPath;
           try {
-            keyPath.status = 6, renderNode(request, task, initialState, -1), pushSegmentFinale(
-              keyPath.chunks,
-              request.renderState,
-              keyPath.lastPushedText,
-              keyPath.textEmbedded
-            ), keyPath.status = 1, finishedSegment(request, task.blockedBoundary, keyPath);
+            keyPath.status = 6, renderNode(request, task, initialState, -1), keyPath.lastPushedText && keyPath.textEmbedded && keyPath.chunks.push(textSeparator), keyPath.status = 1, finishedSegment(request, task.blockedBoundary, keyPath);
           } finally {
             task.blockedSegment = newProps;
           }
@@ -3462,7 +3805,7 @@ function requireReactDomServer_bun_production() {
           return;
         case REACT_ACTIVITY_TYPE:
           type = task.blockedSegment;
-          null === type ? "hidden" !== props.mode && (type = task.keyPath, task.keyPath = keyPath, renderNode(request, task, props.children, -1), task.keyPath = type) : "hidden" !== props.mode && (type.chunks.push("<!--&-->"), type.lastPushedText = false, newProps = task.keyPath, task.keyPath = keyPath, renderNode(request, task, props.children, -1), task.keyPath = newProps, type.chunks.push("<!--/&-->"), type.lastPushedText = false);
+          null === type ? "hidden" !== props.mode && (type = task.keyPath, task.keyPath = keyPath, renderNode(request, task, props.children, -1), task.keyPath = type) : "hidden" !== props.mode && (type.chunks.push(startActivityBoundary), type.lastPushedText = false, newProps = task.keyPath, task.keyPath = keyPath, renderNode(request, task, props.children, -1), task.keyPath = newProps, type.chunks.push(endActivityBoundary), type.lastPushedText = false);
           return;
         case REACT_SUSPENSE_LIST_TYPE:
           a: {
@@ -3513,7 +3856,7 @@ function requireReactDomServer_bun_production() {
             type = task.keyPath;
             ref = task.formatContext;
             var prevRow = task.row;
-            propName$43 = task.blockedBoundary;
+            propName$44 = task.blockedBoundary;
             propName = task.blockedPreamble;
             var parentHoistableState = task.hoistableState, parentSegment = task.blockedSegment, fallback = props.fallback;
             props = props.children;
@@ -3567,12 +3910,7 @@ function requireReactDomServer_bun_production() {
               task.componentStack = replaceSuspenseComponentStackWithSuspenseFallbackStack(newProps);
               boundarySegment.status = 6;
               try {
-                renderNode(request, task, fallback, -1), pushSegmentFinale(
-                  boundarySegment.chunks,
-                  request.renderState,
-                  boundarySegment.lastPushedText,
-                  boundarySegment.textEmbedded
-                ), boundarySegment.status = 1, finishedSegment(request, propName$43, boundarySegment);
+                renderNode(request, task, fallback, -1), boundarySegment.lastPushedText && boundarySegment.textEmbedded && boundarySegment.chunks.push(textSeparator), boundarySegment.status = 1, finishedSegment(request, propName$44, boundarySegment);
               } catch (thrownValue) {
                 throw boundarySegment.status = 12 === request.status ? 3 : 4, thrownValue;
               } finally {
@@ -3613,12 +3951,7 @@ function requireReactDomServer_bun_production() {
               task.row = null;
               contentRootSegment.status = 6;
               try {
-                if (renderNode(request, task, props, -1), pushSegmentFinale(
-                  contentRootSegment.chunks,
-                  request.renderState,
-                  contentRootSegment.lastPushedText,
-                  contentRootSegment.textEmbedded
-                ), contentRootSegment.status = 1, finishedSegment(request, newBoundary, contentRootSegment), queueCompletedSegment(newBoundary, contentRootSegment), 0 === newBoundary.pendingTasks && 0 === newBoundary.status) {
+                if (renderNode(request, task, props, -1), contentRootSegment.lastPushedText && contentRootSegment.textEmbedded && contentRootSegment.chunks.push(textSeparator), contentRootSegment.status = 1, finishedSegment(request, newBoundary, contentRootSegment), queueCompletedSegment(newBoundary, contentRootSegment), 0 === newBoundary.pendingTasks && 0 === newBoundary.status) {
                   if (newBoundary.status = 1, !isEligibleForOutlining(request, newBoundary)) {
                     null !== prevRow && 0 === --prevRow.pendingTasks && finishSuspenseListRow(request, prevRow);
                     0 === request.pendingRootTasks && task.blockedPreamble && preparePreamble(request);
@@ -3626,21 +3959,21 @@ function requireReactDomServer_bun_production() {
                   }
                 } else
                   null !== prevRow && prevRow.together && tryToResolveTogetherRow(request, prevRow);
-              } catch (thrownValue$30) {
-                newBoundary.status = 4, 12 === request.status ? (contentRootSegment.status = 3, newProps = request.fatalError) : (contentRootSegment.status = 4, newProps = thrownValue$30), defaultProps = getThrownInfo(task.componentStack), initialState = logRecoverableError(
+              } catch (thrownValue$31) {
+                newBoundary.status = 4, 12 === request.status ? (contentRootSegment.status = 3, newProps = request.fatalError) : (contentRootSegment.status = 4, newProps = thrownValue$31), defaultProps = getThrownInfo(task.componentStack), initialState = logRecoverableError(
                   request,
                   newProps,
                   defaultProps
                 ), newBoundary.errorDigest = initialState, untrackBoundary(request, newBoundary);
               } finally {
-                task.blockedBoundary = propName$43, task.blockedPreamble = propName, task.hoistableState = parentHoistableState, task.blockedSegment = parentSegment, task.keyPath = type, task.formatContext = ref, task.row = prevRow;
+                task.blockedBoundary = propName$44, task.blockedPreamble = propName, task.hoistableState = parentHoistableState, task.blockedSegment = parentSegment, task.keyPath = type, task.formatContext = ref, task.row = prevRow;
               }
               task = createRenderTask(
                 request,
                 null,
                 fallback,
                 -1,
-                propName$43,
+                propName$44,
                 boundarySegment,
                 newBoundary.fallbackPreamble,
                 newBoundary.fallbackState,
@@ -4180,11 +4513,11 @@ function requireReactDomServer_bun_production() {
       var childrenLength = segment.children.length, chunkLength = segment.chunks.length;
       try {
         return renderNodeDestructive(request, task, node, childIndex);
-      } catch (thrownValue$62) {
-        if (resetHooksState(), segment.children.length = childrenLength, segment.chunks.length = chunkLength, node = thrownValue$62 === SuspenseException ? getSuspendedThenable() : thrownValue$62, 12 !== request.status && "object" === typeof node && null !== node) {
+      } catch (thrownValue$63) {
+        if (resetHooksState(), segment.children.length = childrenLength, segment.chunks.length = chunkLength, node = thrownValue$63 === SuspenseException ? getSuspendedThenable() : thrownValue$63, 12 !== request.status && "object" === typeof node && null !== node) {
           if ("function" === typeof node.then) {
             segment = node;
-            node = thrownValue$62 === SuspenseException ? getThenableStateAfterSuspending() : null;
+            node = thrownValue$63 === SuspenseException ? getThenableStateAfterSuspending() : null;
             request = spawnNewSuspendedRenderTask(request, task, node).ping;
             segment.then(request, request);
             task.formatContext = previousFormatContext;
@@ -4196,7 +4529,7 @@ function requireReactDomServer_bun_production() {
             return;
           }
           if ("Maximum call stack size exceeded" === node.message) {
-            segment = thrownValue$62 === SuspenseException ? getThenableStateAfterSuspending() : null;
+            segment = thrownValue$63 === SuspenseException ? getThenableStateAfterSuspending() : null;
             segment = spawnNewSuspendedRenderTask(request, task, segment);
             request.pingedTasks.push(segment);
             task.formatContext = previousFormatContext;
@@ -4286,10 +4619,10 @@ function requireReactDomServer_bun_production() {
         0 === request.pendingRootTasks && completeShell(request);
       }
     } else {
-      var trackedPostpones$63 = request.trackedPostpones;
+      var trackedPostpones$64 = request.trackedPostpones;
       if (4 !== boundary.status) {
-        if (null !== trackedPostpones$63 && null !== segment)
-          return logRecoverableError(request, error, errorInfo), trackPostpone(request, trackedPostpones$63, task, segment), boundary.fallbackAbortableTasks.forEach(function(fallbackTask) {
+        if (null !== trackedPostpones$64 && null !== segment)
+          return logRecoverableError(request, error, errorInfo), trackPostpone(request, trackedPostpones$64, task, segment), boundary.fallbackAbortableTasks.forEach(function(fallbackTask) {
             return abortTask(fallbackTask, request, error);
           }), boundary.fallbackAbortableTasks.clear(), finishedTask(request, boundary, task.row, segment);
         boundary.status = 4;
@@ -4375,7 +4708,7 @@ function requireReactDomServer_bun_production() {
     if (null !== byteLengthOfChunk) {
       segment = segment.chunks;
       for (var segmentByteSize = 0, i = 0; i < segment.length; i++)
-        segmentByteSize += byteLengthOfChunk(segment[i]);
+        segmentByteSize += segment[i].byteLength;
       null === boundary ? request.byteSize += segmentByteSize : boundary.byteSize += segmentByteSize;
     }
   }
@@ -4492,12 +4825,7 @@ function requireReactDomServer_bun_production() {
             switchContext(task.context);
             var childrenLength = request$jscomp$1.children.length, chunkLength = request$jscomp$1.chunks.length;
             try {
-              retryNode(request, task), pushSegmentFinale(
-                request$jscomp$1.chunks,
-                request.renderState,
-                request$jscomp$1.lastPushedText,
-                request$jscomp$1.textEmbedded
-              ), task.abortSet.delete(task), request$jscomp$1.status = 1, finishedSegment(request, task.blockedBoundary, request$jscomp$1), finishedTask(
+              retryNode(request, task), request$jscomp$1.lastPushedText && request$jscomp$1.textEmbedded && request$jscomp$1.chunks.push(textSeparator), task.abortSet.delete(task), request$jscomp$1.status = 1, finishedSegment(request, task.blockedBoundary, request$jscomp$1), finishedTask(
                 request,
                 task.blockedBoundary,
                 task.row,
@@ -4624,7 +4952,7 @@ function requireReactDomServer_bun_production() {
       case 0:
         segment.id = request.nextSegmentId++;
       case 5:
-        return hoistableState = segment.id, segment.lastPushedText = false, segment.textEmbedded = false, request = request.renderState, writeChunk(destination, '<template id="'), writeChunk(destination, request.placeholderPrefix), request = hoistableState.toString(16), writeChunk(destination, request), !!destination.write('"></template>');
+        return hoistableState = segment.id, segment.lastPushedText = false, segment.textEmbedded = false, request = request.renderState, writeChunk(destination, placeholder1), writeChunk(destination, request.placeholderPrefix), request = stringToChunk(hoistableState.toString(16)), writeChunk(destination, request), writeChunkAndReturn(destination, placeholder2);
       case 1:
         segment.status = 2;
         var r = true, chunks = segment.chunks, chunkIdx = 0;
@@ -4636,7 +4964,7 @@ function requireReactDomServer_bun_production() {
         }
         for (; chunkIdx < chunks.length - 1; chunkIdx++)
           writeChunk(destination, chunks[chunkIdx]);
-        chunkIdx < chunks.length && (r = !!destination.write(chunks[chunkIdx]));
+        chunkIdx < chunks.length && (r = writeChunkAndReturn(destination, chunks[chunkIdx]));
         return r;
       case 3:
         return true;
@@ -4656,10 +4984,13 @@ function requireReactDomServer_bun_production() {
       var row = boundary.row;
       null !== row && 0 === --row.pendingTasks && finishSuspenseListRow(request, row);
       boundary = boundary.errorDigest;
-      destination.write("<!--$!-->");
-      writeChunk(destination, "<template");
-      boundary && (writeChunk(destination, ' data-dgst="'), writeChunk(destination, escapeTextForBrowser(boundary)), writeChunk(destination, '"'));
-      destination.write("></template>");
+      writeChunkAndReturn(destination, startClientRenderedSuspenseBoundary);
+      writeChunk(destination, clientRenderedSuspenseBoundaryError1);
+      boundary && (writeChunk(destination, clientRenderedSuspenseBoundaryError1A), writeChunk(destination, stringToChunk(escapeTextForBrowser(boundary))), writeChunk(
+        destination,
+        clientRenderedSuspenseBoundaryErrorAttrInterstitial
+      ));
+      writeChunkAndReturn(destination, clientRenderedSuspenseBoundaryError2);
       flushSubtree(request, destination, segment, hoistableState);
     } else if (1 !== boundary.status)
       0 === boundary.status && (boundary.rootSegmentID = request.nextSegmentId++), 0 < boundary.completedSegments.length && request.partialBoundaries.push(boundary), writeStartPendingSuspenseBoundary(
@@ -4678,7 +5009,7 @@ function requireReactDomServer_bun_production() {
       hoistableState && hoistHoistables(hoistableState, boundary.contentState);
       segment = boundary.row;
       null !== segment && isEligibleForOutlining(request, boundary) && 0 === --segment.pendingTasks && finishSuspenseListRow(request, segment);
-      destination.write("<!--$-->");
+      writeChunkAndReturn(destination, startCompletedSuspenseBoundary);
       segment = boundary.completedSegments;
       if (1 !== segment.length)
         throw Error(
@@ -4686,7 +5017,7 @@ function requireReactDomServer_bun_production() {
         );
       flushSegment(request, destination, segment[0], hoistableState);
     }
-    return !!destination.write("<!--/$-->");
+    return writeChunkAndReturn(destination, endSuspenseBoundary);
   }
   function flushSegmentContainer(request, destination, segment, hoistableState) {
     writeStartSegment(
@@ -4722,28 +5053,16 @@ function requireReactDomServer_bun_production() {
     var requiresStyleInsertion = request.stylesToHoist;
     request.stylesToHoist = false;
     writeChunk(destination, request.startInlineScript);
-    writeChunk(destination, ">");
-    requiresStyleInsertion ? (0 === (completedSegments.instructions & 4) && (completedSegments.instructions |= 4, writeChunk(
-      destination,
-      '$RX=function(b,c,d,e,f){var a=document.getElementById(b);a&&(b=a.previousSibling,b.data="$!",a=a.dataset,c&&(a.dgst=c),d&&(a.msg=d),e&&(a.stck=e),f&&(a.cstck=f),b._reactRetry&&b._reactRetry())};'
-    )), 0 === (completedSegments.instructions & 2) && (completedSegments.instructions |= 2, writeChunk(
-      destination,
-      '$RB=[];$RV=function(a){$RT=performance.now();for(var b=0;b<a.length;b+=2){var c=a[b],e=a[b+1];null!==e.parentNode&&e.parentNode.removeChild(e);var f=c.parentNode;if(f){var g=c.previousSibling,h=0;do{if(c&&8===c.nodeType){var d=c.data;if("/$"===d||"/&"===d)if(0===h)break;else h--;else"$"!==d&&"$?"!==d&&"$~"!==d&&"$!"!==d&&"&"!==d||h++}d=c.nextSibling;f.removeChild(c);c=d}while(c);for(;e.firstChild;)f.insertBefore(e.firstChild,c);g.data="$";g._reactRetry&&requestAnimationFrame(g._reactRetry)}}a.length=0};\n$RC=function(a,b){if(b=document.getElementById(b))(a=document.getElementById(a))?(a.previousSibling.data="$~",$RB.push(a,b),2===$RB.length&&("number"!==typeof $RT?requestAnimationFrame($RV.bind(null,$RB)):(a=performance.now(),setTimeout($RV.bind(null,$RB),2300>a&&2E3<a?2300-a:$RT+300-a)))):b.parentNode.removeChild(b)};'
-    )), 0 === (completedSegments.instructions & 8) ? (completedSegments.instructions |= 8, writeChunk(
-      destination,
-      '$RM=new Map;$RR=function(n,w,p){function u(q){this._p=null;q()}for(var r=new Map,t=document,h,b,e=t.querySelectorAll("link[data-precedence],style[data-precedence]"),v=[],k=0;b=e[k++];)"not all"===b.getAttribute("media")?v.push(b):("LINK"===b.tagName&&$RM.set(b.getAttribute("href"),b),r.set(b.dataset.precedence,h=b));e=0;b=[];var l,a;for(k=!0;;){if(k){var f=p[e++];if(!f){k=!1;e=0;continue}var c=!1,m=0;var d=f[m++];if(a=$RM.get(d)){var g=a._p;c=!0}else{a=t.createElement("link");a.href=d;a.rel=\n"stylesheet";for(a.dataset.precedence=l=f[m++];g=f[m++];)a.setAttribute(g,f[m++]);g=a._p=new Promise(function(q,x){a.onload=u.bind(a,q);a.onerror=u.bind(a,x)});$RM.set(d,a)}d=a.getAttribute("media");!g||d&&!matchMedia(d).matches||b.push(g);if(c)continue}else{a=v[e++];if(!a)break;l=a.getAttribute("data-precedence");a.removeAttribute("media")}c=r.get(l)||h;c===h&&(h=a);r.set(l,a);c?c.parentNode.insertBefore(a,c.nextSibling):(c=t.head,c.insertBefore(a,c.firstChild))}if(p=document.getElementById(n))p.previousSibling.data=\n"$~";Promise.all(b).then($RC.bind(null,n,w),$RX.bind(null,n,"CSS failed to load"))};$RR("'
-    )) : writeChunk(destination, '$RR("')) : (0 === (completedSegments.instructions & 2) && (completedSegments.instructions |= 2, writeChunk(
-      destination,
-      '$RB=[];$RV=function(a){$RT=performance.now();for(var b=0;b<a.length;b+=2){var c=a[b],e=a[b+1];null!==e.parentNode&&e.parentNode.removeChild(e);var f=c.parentNode;if(f){var g=c.previousSibling,h=0;do{if(c&&8===c.nodeType){var d=c.data;if("/$"===d||"/&"===d)if(0===h)break;else h--;else"$"!==d&&"$?"!==d&&"$~"!==d&&"$!"!==d&&"&"!==d||h++}d=c.nextSibling;f.removeChild(c);c=d}while(c);for(;e.firstChild;)f.insertBefore(e.firstChild,c);g.data="$";g._reactRetry&&requestAnimationFrame(g._reactRetry)}}a.length=0};\n$RC=function(a,b){if(b=document.getElementById(b))(a=document.getElementById(a))?(a.previousSibling.data="$~",$RB.push(a,b),2===$RB.length&&("number"!==typeof $RT?requestAnimationFrame($RV.bind(null,$RB)):(a=performance.now(),setTimeout($RV.bind(null,$RB),2300>a&&2E3<a?2300-a:$RT+300-a)))):b.parentNode.removeChild(b)};'
-    )), writeChunk(destination, '$RC("'));
-    completedSegments = i.toString(16);
+    writeChunk(destination, endOfStartTag);
+    requiresStyleInsertion ? (0 === (completedSegments.instructions & 4) && (completedSegments.instructions |= 4, writeChunk(destination, clientRenderScriptFunctionOnly)), 0 === (completedSegments.instructions & 2) && (completedSegments.instructions |= 2, writeChunk(destination, completeBoundaryScriptFunctionOnly)), 0 === (completedSegments.instructions & 8) ? (completedSegments.instructions |= 8, writeChunk(destination, completeBoundaryWithStylesScript1FullPartial)) : writeChunk(destination, completeBoundaryWithStylesScript1Partial)) : (0 === (completedSegments.instructions & 2) && (completedSegments.instructions |= 2, writeChunk(destination, completeBoundaryScriptFunctionOnly)), writeChunk(destination, completeBoundaryScript1Partial));
+    completedSegments = stringToChunk(i.toString(16));
     writeChunk(destination, request.boundaryPrefix);
     writeChunk(destination, completedSegments);
-    writeChunk(destination, '","');
+    writeChunk(destination, completeBoundaryScript2);
     writeChunk(destination, request.segmentPrefix);
     writeChunk(destination, completedSegments);
-    requiresStyleInsertion ? (writeChunk(destination, '",'), writeStyleResourceDependenciesInJS(destination, boundary)) : writeChunk(destination, '"');
-    boundary = !!destination.write(")<\/script>");
+    requiresStyleInsertion ? (writeChunk(destination, completeBoundaryScript3a), writeStyleResourceDependenciesInJS(destination, boundary)) : writeChunk(destination, completeBoundaryScript3b);
+    boundary = writeChunkAndReturn(destination, completeBoundaryScriptEnd);
     return writeBootstrap(destination, request) && boundary;
   }
   function flushPartiallyCompletedSegment(request, destination, boundary, segment) {
@@ -4762,22 +5081,21 @@ function requireReactDomServer_bun_production() {
     boundary = request.resumableState;
     request = request.renderState;
     writeChunk(destination, request.startInlineScript);
-    writeChunk(destination, ">");
-    0 === (boundary.instructions & 1) ? (boundary.instructions |= 1, writeChunk(
-      destination,
-      '$RS=function(a,b){a=document.getElementById(a);b=document.getElementById(b);for(a.parentNode.removeChild(a);a.firstChild;)b.parentNode.insertBefore(a.firstChild,b);b.parentNode.removeChild(b)};$RS("'
-    )) : writeChunk(destination, '$RS("');
+    writeChunk(destination, endOfStartTag);
+    0 === (boundary.instructions & 1) ? (boundary.instructions |= 1, writeChunk(destination, completeSegmentScript1Full)) : writeChunk(destination, completeSegmentScript1Partial);
     writeChunk(destination, request.segmentPrefix);
-    segmentID = segmentID.toString(16);
+    segmentID = stringToChunk(segmentID.toString(16));
     writeChunk(destination, segmentID);
-    writeChunk(destination, '","');
+    writeChunk(destination, completeSegmentScript2);
     writeChunk(destination, request.placeholderPrefix);
     writeChunk(destination, segmentID);
-    destination = !!destination.write('")<\/script>');
+    destination = writeChunkAndReturn(destination, completeSegmentScriptEnd);
     return destination;
   }
   var flushingPartialBoundaries = false;
   function flushCompletedQueues(request, destination) {
+    currentView = new Uint8Array(2048);
+    writtenBytes = 0;
     try {
       if (!(0 < request.pendingRootTasks)) {
         var i, completedRootSegment = request.completedRootSegment;
@@ -4794,7 +5112,7 @@ function requireReactDomServer_bun_production() {
               for (i$jscomp$0 = 0; i$jscomp$0 < headChunks.length; i$jscomp$0++)
                 writeChunk(destination, headChunks[i$jscomp$0]);
             else
-              writeChunk(destination, startChunkForTag("head")), writeChunk(destination, ">");
+              writeChunk(destination, startChunkForTag("head")), writeChunk(destination, endOfStartTag);
           } else if (headChunks)
             for (i$jscomp$0 = 0; i$jscomp$0 < headChunks.length; i$jscomp$0++)
               writeChunk(destination, headChunks[i$jscomp$0]);
@@ -4850,16 +5168,16 @@ function requireReactDomServer_bun_production() {
               if (0 === (resumableState$jscomp$0.instructions & 32)) {
                 resumableState$jscomp$0.instructions |= 32;
                 var shellId = "_" + resumableState$jscomp$0.idPrefix + "R_";
-                writeChunk(destination, ' id="');
-                writeChunk(destination, escapeTextForBrowser(shellId));
-                writeChunk(destination, '"');
+                writeChunk(destination, completedShellIdAttributeStart);
+                writeChunk(
+                  destination,
+                  stringToChunk(escapeTextForBrowser(shellId))
+                );
+                writeChunk(destination, attributeEnd);
               }
-              writeChunk(destination, ">");
-              writeChunk(
-                destination,
-                "requestAnimationFrame(function(){$RT=performance.now()});"
-              );
-              destination.write("<\/script>");
+              writeChunk(destination, endOfStartTag);
+              writeChunk(destination, shellTimeRuntimeScript);
+              writeChunkAndReturn(destination, endInlineScript);
             }
           }
           writeBootstrap(destination, renderState$jscomp$0);
@@ -4897,19 +5215,24 @@ function requireReactDomServer_bun_production() {
             renderState$jscomp$1,
             renderState$jscomp$2.startInlineScript
           );
-          writeChunk(renderState$jscomp$1, ">");
-          0 === (resumableState$jscomp$1.instructions & 4) ? (resumableState$jscomp$1.instructions |= 4, writeChunk(
-            renderState$jscomp$1,
-            '$RX=function(b,c,d,e,f){var a=document.getElementById(b);a&&(b=a.previousSibling,b.data="$!",a=a.dataset,c&&(a.dgst=c),d&&(a.msg=d),e&&(a.stck=e),f&&(a.cstck=f),b._reactRetry&&b._reactRetry())};;$RX("'
-          )) : writeChunk(renderState$jscomp$1, '$RX("');
+          writeChunk(renderState$jscomp$1, endOfStartTag);
+          0 === (resumableState$jscomp$1.instructions & 4) ? (resumableState$jscomp$1.instructions |= 4, writeChunk(renderState$jscomp$1, clientRenderScript1Full)) : writeChunk(renderState$jscomp$1, clientRenderScript1Partial);
           writeChunk(renderState$jscomp$1, renderState$jscomp$2.boundaryPrefix);
-          writeChunk(renderState$jscomp$1, id.toString(16));
-          writeChunk(renderState$jscomp$1, '"');
-          errorDigest && (writeChunk(renderState$jscomp$1, ","), writeChunk(
+          writeChunk(renderState$jscomp$1, stringToChunk(id.toString(16)));
+          writeChunk(renderState$jscomp$1, clientRenderScript1A);
+          errorDigest && (writeChunk(
             renderState$jscomp$1,
-            escapeJSStringsForInstructionScripts(errorDigest || "")
+            clientRenderErrorScriptArgInterstitial
+          ), writeChunk(
+            renderState$jscomp$1,
+            stringToChunk(
+              escapeJSStringsForInstructionScripts(errorDigest || "")
+            )
           ));
-          var JSCompiler_inline_result = !!renderState$jscomp$1.write(")<\/script>");
+          var JSCompiler_inline_result = writeChunkAndReturn(
+            renderState$jscomp$1,
+            clientRenderScriptEnd
+          );
           if (!JSCompiler_inline_result) {
             request.destination = null;
             i++;
@@ -4927,20 +5250,23 @@ function requireReactDomServer_bun_production() {
             return;
           }
         completedBoundaries.splice(0, i);
+        completeWriting(destination);
+        currentView = new Uint8Array(2048);
+        writtenBytes = 0;
         flushingPartialBoundaries = true;
         var partialBoundaries = request.partialBoundaries;
         for (i = 0; i < partialBoundaries.length; i++) {
-          var boundary$69 = partialBoundaries[i];
+          var boundary$70 = partialBoundaries[i];
           a: {
             clientRenderedBoundaries = request;
             boundary = destination;
-            flushedByteSize = boundary$69.byteSize;
-            var completedSegments = boundary$69.completedSegments;
+            flushedByteSize = boundary$70.byteSize;
+            var completedSegments = boundary$70.completedSegments;
             for (JSCompiler_inline_result = 0; JSCompiler_inline_result < completedSegments.length; JSCompiler_inline_result++)
               if (!flushPartiallyCompletedSegment(
                 clientRenderedBoundaries,
                 boundary,
-                boundary$69,
+                boundary$70,
                 completedSegments[JSCompiler_inline_result]
               )) {
                 JSCompiler_inline_result++;
@@ -4949,15 +5275,15 @@ function requireReactDomServer_bun_production() {
                 break a;
               }
             completedSegments.splice(0, JSCompiler_inline_result);
-            var row = boundary$69.row;
-            null !== row && row.together && 1 === boundary$69.pendingTasks && (1 === row.pendingTasks ? unblockSuspenseListRow(
+            var row = boundary$70.row;
+            null !== row && row.together && 1 === boundary$70.pendingTasks && (1 === row.pendingTasks ? unblockSuspenseListRow(
               clientRenderedBoundaries,
               row,
               row.hoistables
             ) : row.pendingTasks--);
             JSCompiler_inline_result$jscomp$0 = writeHoistablesForBoundary(
               boundary,
-              boundary$69.contentState,
+              boundary$70.contentState,
               clientRenderedBoundaries.renderState
             );
           }
@@ -4981,24 +5307,45 @@ function requireReactDomServer_bun_production() {
         largeBoundaries.splice(0, i);
       }
     } finally {
-      flushingPartialBoundaries = false, 0 === request.allPendingTasks && 0 === request.clientRenderedBoundaries.length && 0 === request.completedBoundaries.length ? (request.flushScheduled = false, i = request.resumableState, i.hasBody && writeChunk(destination, endChunkForTag("body")), i.hasHtml && writeChunk(destination, endChunkForTag("html")), flushBuffered(destination), request.status = 14, destination.end(), request.destination = null) : flushBuffered(destination);
+      flushingPartialBoundaries = false, 0 === request.allPendingTasks && 0 === request.clientRenderedBoundaries.length && 0 === request.completedBoundaries.length ? (request.flushScheduled = false, i = request.resumableState, i.hasBody && writeChunk(destination, endChunkForTag("body")), i.hasHtml && writeChunk(destination, endChunkForTag("html")), completeWriting(destination), request.status = 14, destination.close(), request.destination = null) : completeWriting(destination);
     }
   }
   function startWork(request) {
     request.flushScheduled = null !== request.destination;
-    scheduleMicrotask(function() {
+    supportsRequestStorage ? scheduleMicrotask(function() {
+      return requestStorage.run(request, performWork, request);
+    }) : scheduleMicrotask(function() {
       return performWork(request);
     });
     setTimeout(function() {
       10 === request.status && (request.status = 11);
-      null === request.trackedPostpones && safelyEmitEarlyPreloads(request, 0 === request.pendingRootTasks);
+      null === request.trackedPostpones && (supportsRequestStorage ? requestStorage.run(
+        request,
+        enqueueEarlyPreloadsAfterInitialWork,
+        request
+      ) : enqueueEarlyPreloadsAfterInitialWork(request));
     }, 0);
+  }
+  function enqueueEarlyPreloadsAfterInitialWork(request) {
+    safelyEmitEarlyPreloads(request, 0 === request.pendingRootTasks);
   }
   function enqueueFlush(request) {
     false === request.flushScheduled && 0 === request.pingedTasks.length && null !== request.destination && (request.flushScheduled = true, setTimeout(function() {
       var destination = request.destination;
       destination ? flushCompletedQueues(request, destination) : request.flushScheduled = false;
     }, 0));
+  }
+  function startFlowing(request, destination) {
+    if (13 === request.status)
+      request.status = 14, closeWithError(destination, request.fatalError);
+    else if (14 !== request.status && null === request.destination) {
+      request.destination = destination;
+      try {
+        flushCompletedQueues(request, destination);
+      } catch (error) {
+        logRecoverableError(request, error, {}), fatalError(request, error);
+      }
+    }
   }
   function abort(request, reason) {
     if (11 === request.status || 10 === request.status) request.status = 12;
@@ -5013,8 +5360,8 @@ function requireReactDomServer_bun_production() {
         abortableTasks.clear();
       }
       null !== request.destination && flushCompletedQueues(request, request.destination);
-    } catch (error$71) {
-      logRecoverableError(request, error$71, {}), fatalError(request, error$71);
+    } catch (error$72) {
+      logRecoverableError(request, error$72, {}), fatalError(request, error$72);
     }
   }
   function addToReplayParent(node, parentKeyPath, trackedPostpones) {
@@ -5025,12 +5372,116 @@ function requireReactDomServer_bun_production() {
       parentNode[2].push(node);
     }
   }
-  var isomorphicReactPackageVersion$jscomp$inline_821 = React.version;
-  if ("19.2.7" !== isomorphicReactPackageVersion$jscomp$inline_821)
-    throw Error(
-      'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion$jscomp$inline_821 + "\n  - react-dom:  19.2.7\nLearn more: https://react.dev/warnings/version-mismatch")
-    );
-  reactDomServer_bun_production.renderToReadableStream = function(children, options) {
+  function getPostponedState(request) {
+    var trackedPostpones = request.trackedPostpones;
+    if (null === trackedPostpones || 0 === trackedPostpones.rootNodes.length && null === trackedPostpones.rootSlots)
+      return request.trackedPostpones = null;
+    if (null === request.completedRootSegment || 5 !== request.completedRootSegment.status && null !== request.completedPreambleSegments) {
+      var nextSegmentId = request.nextSegmentId;
+      var replaySlots = trackedPostpones.rootSlots;
+      var resumableState = request.resumableState;
+      resumableState.bootstrapScriptContent = void 0;
+      resumableState.bootstrapScripts = void 0;
+      resumableState.bootstrapModules = void 0;
+    } else {
+      nextSegmentId = 0;
+      replaySlots = -1;
+      resumableState = request.resumableState;
+      var renderState = request.renderState;
+      resumableState.nextFormID = 0;
+      resumableState.hasBody = false;
+      resumableState.hasHtml = false;
+      resumableState.unknownResources = { font: renderState.resets.font };
+      resumableState.dnsResources = renderState.resets.dns;
+      resumableState.connectResources = renderState.resets.connect;
+      resumableState.imageResources = renderState.resets.image;
+      resumableState.styleResources = renderState.resets.style;
+      resumableState.scriptResources = {};
+      resumableState.moduleUnknownResources = {};
+      resumableState.moduleScriptResources = {};
+      resumableState.instructions = 0;
+    }
+    return {
+      nextSegmentId,
+      rootFormatContext: request.rootFormatContext,
+      progressiveChunkSize: request.progressiveChunkSize,
+      resumableState: request.resumableState,
+      replayNodes: trackedPostpones.rootNodes,
+      replaySlots
+    };
+  }
+  function ensureCorrectIsomorphicReactVersion() {
+    var isomorphicReactPackageVersion = React.version;
+    if ("19.2.7" !== isomorphicReactPackageVersion)
+      throw Error(
+        'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.7\nLearn more: https://react.dev/warnings/version-mismatch")
+      );
+  }
+  ensureCorrectIsomorphicReactVersion();
+  ensureCorrectIsomorphicReactVersion();
+  reactDomServer_edge_production.prerender = function(children, options) {
+    return new Promise(function(resolve, reject) {
+      var onHeaders = options ? options.onHeaders : void 0, onHeadersImpl;
+      onHeaders && (onHeadersImpl = function(headersDescriptor) {
+        onHeaders(new Headers(headersDescriptor));
+      });
+      var resources = createResumableState(
+        options ? options.identifierPrefix : void 0,
+        options ? options.unstable_externalRuntimeSrc : void 0,
+        options ? options.bootstrapScriptContent : void 0,
+        options ? options.bootstrapScripts : void 0,
+        options ? options.bootstrapModules : void 0
+      ), request = createPrerenderRequest(
+        children,
+        resources,
+        createRenderState(
+          resources,
+          void 0,
+          options ? options.unstable_externalRuntimeSrc : void 0,
+          options ? options.importMap : void 0,
+          onHeadersImpl,
+          options ? options.maxHeadersLength : void 0
+        ),
+        createRootFormatContext(options ? options.namespaceURI : void 0),
+        options ? options.progressiveChunkSize : void 0,
+        options ? options.onError : void 0,
+        function() {
+          var stream = new ReadableStream(
+            {
+              type: "bytes",
+              pull: function(controller) {
+                startFlowing(request, controller);
+              },
+              cancel: function(reason) {
+                request.destination = null;
+                abort(request, reason);
+              }
+            },
+            { highWaterMark: 0 }
+          );
+          stream = { postponed: getPostponedState(request), prelude: stream };
+          resolve(stream);
+        },
+        void 0,
+        void 0,
+        reject,
+        options ? options.onPostpone : void 0
+      );
+      if (options && options.signal) {
+        var signal = options.signal;
+        if (signal.aborted) abort(request, signal.reason);
+        else {
+          var listener = function() {
+            abort(request, signal.reason);
+            signal.removeEventListener("abort", listener);
+          };
+          signal.addEventListener("abort", listener);
+        }
+      }
+      startWork(request);
+    });
+  };
+  reactDomServer_edge_production.renderToReadableStream = function(children, options) {
     return new Promise(function(resolve, reject) {
       var onFatalError, onAllReady, allReady = new Promise(function(res, rej) {
         onAllReady = res;
@@ -5063,25 +5514,16 @@ function requireReactDomServer_bun_production() {
         function() {
           var stream = new ReadableStream(
             {
-              type: "direct",
+              type: "bytes",
               pull: function(controller) {
-                if (13 === request.status)
-                  request.status = 14, closeWithError(controller, request.fatalError);
-                else if (14 !== request.status && null === request.destination) {
-                  request.destination = controller;
-                  try {
-                    flushCompletedQueues(request, controller);
-                  } catch (error) {
-                    logRecoverableError(request, error, {}), fatalError(request, error);
-                  }
-                }
+                startFlowing(request, controller);
               },
               cancel: function(reason) {
                 request.destination = null;
                 abort(request, reason);
               }
             },
-            { highWaterMark: 2048 }
+            { highWaterMark: 0 }
           );
           stream.allReady = allReady;
           resolve(stream);
@@ -5109,8 +5551,115 @@ function requireReactDomServer_bun_production() {
       startWork(request);
     });
   };
-  reactDomServer_bun_production.version = "19.2.7";
-  return reactDomServer_bun_production;
+  reactDomServer_edge_production.resume = function(children, postponedState, options) {
+    return new Promise(function(resolve, reject) {
+      var onFatalError, onAllReady, allReady = new Promise(function(res, rej) {
+        onAllReady = res;
+        onFatalError = rej;
+      }), request = resumeRequest(
+        children,
+        postponedState,
+        createRenderState(
+          postponedState.resumableState,
+          options ? options.nonce : void 0,
+          void 0,
+          void 0,
+          void 0,
+          void 0
+        ),
+        options ? options.onError : void 0,
+        onAllReady,
+        function() {
+          var stream = new ReadableStream(
+            {
+              type: "bytes",
+              pull: function(controller) {
+                startFlowing(request, controller);
+              },
+              cancel: function(reason) {
+                request.destination = null;
+                abort(request, reason);
+              }
+            },
+            { highWaterMark: 0 }
+          );
+          stream.allReady = allReady;
+          resolve(stream);
+        },
+        function(error) {
+          allReady.catch(function() {
+          });
+          reject(error);
+        },
+        onFatalError,
+        options ? options.onPostpone : void 0
+      );
+      if (options && options.signal) {
+        var signal = options.signal;
+        if (signal.aborted) abort(request, signal.reason);
+        else {
+          var listener = function() {
+            abort(request, signal.reason);
+            signal.removeEventListener("abort", listener);
+          };
+          signal.addEventListener("abort", listener);
+        }
+      }
+      startWork(request);
+    });
+  };
+  reactDomServer_edge_production.resumeAndPrerender = function(children, postponedState, options) {
+    return new Promise(function(resolve, reject) {
+      var request = resumeAndPrerenderRequest(
+        children,
+        postponedState,
+        createRenderState(
+          postponedState.resumableState,
+          void 0,
+          void 0,
+          void 0,
+          void 0,
+          void 0
+        ),
+        options ? options.onError : void 0,
+        function() {
+          var stream = new ReadableStream(
+            {
+              type: "bytes",
+              pull: function(controller) {
+                startFlowing(request, controller);
+              },
+              cancel: function(reason) {
+                request.destination = null;
+                abort(request, reason);
+              }
+            },
+            { highWaterMark: 0 }
+          );
+          stream = { postponed: getPostponedState(request), prelude: stream };
+          resolve(stream);
+        },
+        void 0,
+        void 0,
+        reject,
+        options ? options.onPostpone : void 0
+      );
+      if (options && options.signal) {
+        var signal = options.signal;
+        if (signal.aborted) abort(request, signal.reason);
+        else {
+          var listener = function() {
+            abort(request, signal.reason);
+            signal.removeEventListener("abort", listener);
+          };
+          signal.addEventListener("abort", listener);
+        }
+      }
+      startWork(request);
+    });
+  };
+  reactDomServer_edge_production.version = "19.2.7";
+  return reactDomServer_edge_production;
 }
 var reactDomServerLegacy_browser_production = {};
 var hasRequiredReactDomServerLegacy_browser_production;
@@ -9908,25 +10457,25 @@ function requireReactDomServerLegacy_browser_production() {
   reactDomServerLegacy_browser_production.version = "19.2.7";
   return reactDomServerLegacy_browser_production;
 }
-var hasRequiredServer_bun;
-function requireServer_bun() {
-  if (hasRequiredServer_bun) return server_bun;
-  hasRequiredServer_bun = 1;
+var hasRequiredServer_edge;
+function requireServer_edge() {
+  if (hasRequiredServer_edge) return server_edge;
+  hasRequiredServer_edge = 1;
   var b;
   var l;
   {
-    b = requireReactDomServer_bun_production();
+    b = requireReactDomServer_edge_production();
     l = requireReactDomServerLegacy_browser_production();
   }
-  server_bun.version = b.version;
-  server_bun.renderToReadableStream = b.renderToReadableStream;
-  server_bun.resume = b.resume;
-  server_bun.renderToString = l.renderToString;
-  server_bun.renderToStaticMarkup = l.renderToStaticMarkup;
-  return server_bun;
+  server_edge.version = b.version;
+  server_edge.renderToReadableStream = b.renderToReadableStream;
+  server_edge.renderToString = l.renderToString;
+  server_edge.renderToStaticMarkup = l.renderToStaticMarkup;
+  server_edge.resume = b.resume;
+  return server_edge;
 }
-var server_bunExports = requireServer_bun();
-const ReactDOMServer = /* @__PURE__ */ getDefaultExportFromCjs(server_bunExports);
+var server_edgeExports = requireServer_edge();
+const ReactDOMServer = /* @__PURE__ */ getDefaultExportFromCjs(server_edgeExports);
 export {
   ReactDOMServer as R
 };

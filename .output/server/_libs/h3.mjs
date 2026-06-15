@@ -1,3 +1,4 @@
+import "./unenv.mjs";
 import { N as NullProtoObj } from "./rou3.mjs";
 import { F as FastURL, a as FastResponse } from "./srvx.mjs";
 function decodePathname(pathname) {
@@ -400,9 +401,7 @@ var H3Core = class {
 };
 export {
   HTTPError as H,
-  defineLazyEventHandler as a,
-  H3Core as b,
-  toRequest as c,
-  defineHandler as d,
-  toEventHandler as t
+  H3Core as a,
+  defineLazyEventHandler as d,
+  toRequest as t
 };
