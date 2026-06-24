@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Sparkles, Loader2, Globe, Bot, Copy, Check, Trash2, Phone, MessageSquare, Mail } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { chatConsult } from "@/lib/chat.functions";
-import { NILIX_BOT_LOGO } from "@/lib/gallery-images";
+import BotLogo from "@/assets/bot-logo.png";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type LangKey = "fa" | "en" | "ar" | "tr";
@@ -372,7 +372,15 @@ export function ChatWidget() {
       >
         <span className="absolute -inset-3 rounded-full bg-[conic-gradient(from_0deg,rgba(99,102,241,0.6),rgba(168,85,247,0.5),rgba(14,165,233,0.6),rgba(99,102,241,0.6))] opacity-60 blur-xl transition group-hover:opacity-90 animate-pulse" />
         <span className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-sky-500 text-white shadow-glow ring-2 ring-white/20">
-          {open ? <X className="h-6 w-6" /> : <img src={NILIX_BOT_LOGO} alt="Nilix" className="h-full w-full object-cover" />}
+          {open ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <img
+              src={BotLogo}
+              alt="Nilix"
+              className="h-full w-full object-cover"
+            />
+          )}
         </span>
         {!open && (
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -415,7 +423,11 @@ export function ChatWidget() {
                   <div className="relative">
                     <span className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary to-amber-600 opacity-60 blur-md" />
                     <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-sky-500 shadow-glow ring-2 ring-white/20">
-                      <img src={NILIX_BOT_LOGO} alt="Nilix" className="h-full w-full object-cover" />
+                      <img
+                        src={BotLogo}
+                        alt="Nilix"
+                        className="h-full w-full object-cover"
+                      />
                     </div>
                     <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-[#0a0c14] shadow-[0_0_10px_rgba(52,211,153,0.7)]" />
                   </div>
