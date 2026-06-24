@@ -201,8 +201,8 @@ export function getLuxuryGalleryImage(slug: string, category: string, type: "pro
   return type === "app" ? COVER_IMAGES.medicalMobile : COVER_IMAGES.industrialDefect;
 }
 
-import atillaiLogoAsset from "@/assets/brand/atillai-logo.png.asset.json";
+import atillaiLogo from "@/assets/atillai.jpg";
 import nilixBotAsset from "@/assets/brand/nilix-bot.png.asset.json";
 
-export const ATILLAI_ORBIT_LOGO = atillaiLogoAsset.url;
+export const ATILLAI_ORBIT_LOGO = atillaiLogo;
 export const NILIX_BOT_LOGO = nilixBotAsset.url;
